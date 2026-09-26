@@ -1,0 +1,11 @@
+name: ESC6
+category: ADCS
+description: CA-level configuration path candidate affecting certificate issuance semantics.
+source_types: [User, Group]
+target_types: [CertificateAuthority]
+required_relationships: [ManageCA]
+preconditions: []
+results: [CertificateAuthorityControlCandidate]
+follow_up_information: [CA flags and template availability]
+related_primitives: []
+observed_examples: []

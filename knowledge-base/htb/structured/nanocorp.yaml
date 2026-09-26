@@ -1,0 +1,144 @@
+machine:
+  name: NanoCorp
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://0xdf.gitlab.io/2026/06/20/htb-nanocorp.html
+  author: '0xdf'
+  role: primary
+  trust_level: public_writeup
+entities:
+- name: careers portal upload
+  type: Application
+- name: captured NetNTLMv2 credential
+  type: CredentialArtifact
+- name: Windows sessions
+  type: HostEvidence
+- name: Checkmk / MSI execution context
+  type: Service
+- name: recovered domain user
+  type: User
+relationships:
+- BloodHoundCollection
+- CVE-2025-24071
+- ForceChangePassword
+- HasSession
+- MSIExecution
+primitives:
+- BloodHoundCollection
+- HostExecution
+- NetNTLMRelayOrCrack
+- PasswordReset
+- SessionCredentialAccess
+attack_chain:
+- order: 1
+  phase: credential_access
+  source:
+    name: careers portal upload
+    type: Application
+  relationship: CVE-2025-24071
+  target:
+    name: captured NetNTLMv2 credential
+    type: CredentialArtifact
+  primitive: NetNTLMRelayOrCrack
+  result: Careers portal upload / library-ms behavior captures NetNTLMv2 material.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact upload artifact and cracked credential.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2026/06/20/htb-nanocorp.html
+    source_role: primary
+- order: 2
+  phase: enumeration
+  source:
+    name: captured NetNTLMv2 credential
+    type: CredentialArtifact
+  relationship: BloodHoundCollection
+  target:
+    name: recovered domain user
+    type: User
+  primitive: BloodHoundCollection
+  result: Recovered domain credentials are used for BloodHound collection.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Capture exact BloodHound path.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2026/06/20/htb-nanocorp.html
+    source_role: primary
+- order: 3
+  phase: acl_abuse_candidate
+  source:
+    name: recovered domain user
+    type: User
+  relationship: ForceChangePassword
+  target:
+    name: recovered domain user
+    type: User
+  primitive: PasswordReset
+  result: The source keywords include password reset as part of the domain chain.
+  status: historical_wp_candidate
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact source and target identity for reset.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2026/06/20/htb-nanocorp.html
+    source_role: primary
+- order: 4
+  phase: lateral_movement
+  source:
+    name: recovered domain user
+    type: User
+  relationship: HasSession
+  target:
+    name: Windows sessions
+    type: HostEvidence
+  primitive: SessionCredentialAccess
+  result: Windows session discovery is part of the lateral movement path.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact session host and credential exposure.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2026/06/20/htb-nanocorp.html
+    source_role: primary
+- order: 5
+  phase: host_execution
+  source:
+    name: Windows sessions
+    type: HostEvidence
+  relationship: MSIExecution
+  target:
+    name: Checkmk / MSI execution context
+    type: Service
+  primitive: HostExecution
+  result: Checkmk/MSI execution is a candidate host-level continuation.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact CVE/tooling and resulting context.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2026/06/20/htb-nanocorp.html
+    source_role: primary
+review_status: sanitized_historical_draft

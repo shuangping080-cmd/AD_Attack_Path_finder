@@ -1,0 +1,7 @@
+name: UnconstrainedDelegation
+description: Source host or service is trusted for unconstrained delegation.
+source_types: [Computer, ServiceAccount]
+target_types: [Domain, User]
+direct_control: false
+maps_to_primitives: [UnconstrainedDelegation]
+extra_conditions: [High-value delegated session or coercion path is required.]

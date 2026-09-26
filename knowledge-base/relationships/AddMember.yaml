@@ -1,0 +1,7 @@
+name: AddMember
+description: Source can add principals to target group.
+source_types: [User, Group]
+target_types: [Group]
+direct_control: true
+maps_to_primitives: [GroupMembership]
+extra_conditions: [Group privilege and nesting must be evaluated.]

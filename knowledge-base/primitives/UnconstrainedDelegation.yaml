@@ -1,0 +1,11 @@
+name: UnconstrainedDelegation
+category: Delegation
+description: Delegation exposure where service host may receive reusable delegated tickets.
+source_types: [Computer, ServiceAccount]
+target_types: [Computer, User]
+required_relationships: [UnconstrainedDelegation]
+preconditions: []
+results: [DelegatedCredentialExposureCandidate]
+follow_up_information: [High-value session or coercion path]
+related_primitives: [S4U]
+observed_examples: []

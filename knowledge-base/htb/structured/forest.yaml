@@ -1,0 +1,127 @@
+machine:
+  name: Forest
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://0xdf.gitlab.io/2020/03/21/htb-forest.html
+  author: '0xdf'
+  role: primary
+  trust_level: public_writeup
+- url: https://zomy22.github.io/hackthebox/forest.html
+  author: zomy22.github.io
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: HTB domain
+  type: Domain
+- name: Exchange Windows Permissions
+  type: Group
+- name: Administrator
+  type: User
+  properties: &id001
+    high_value: true
+- name: svc-alfresco
+  type: User
+relationships:
+- ASREPRoastable
+- DCSync
+- MemberOf
+- WriteDACL
+primitives:
+- ASREPRoast
+- DCSync
+- GroupMembership
+attack_chain:
+- order: 1
+  phase: credential_access
+  source:
+    name: svc-alfresco
+    type: User
+  relationship: ASREPRoastable
+  target:
+    name: svc-alfresco
+    type: User
+  primitive: ASREPRoast
+  result: svc-alfresco is AS-REP roastable and can yield an offline crack candidate.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - UF_DONT_REQUIRE_PREAUTH is set and hash cracking succeeds.
+  missing_information:
+  - Confirm hash cracking result and credential reuse scope.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2020/03/21/htb-forest.html
+    source_role: primary
+- order: 2
+  phase: privilege_escalation
+  source:
+    name: svc-alfresco
+    type: User
+  relationship: MemberOf
+  target:
+    name: Exchange Windows Permissions
+    type: Group
+  primitive: GroupMembership
+  result: Compromised svc-alfresco reaches Exchange Windows Permissions through group membership.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: false
+  preconditions: []
+  missing_information:
+  - Confirm exact nested group chain in BloodHound.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2020/03/21/htb-forest.html
+    source_role: primary
+- order: 3
+  phase: acl_abuse
+  source:
+    name: Exchange Windows Permissions
+    type: Group
+  relationship: WriteDACL
+  target:
+    name: HTB domain
+    type: Domain
+  primitive: DCSync
+  result: WriteDACL over the domain can be abused to grant DCSync rights.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions:
+  - Attacker can write domain DACL and add replication rights.
+  missing_information:
+  - Confirm exact ACE and whether WriteDACL is current raw graph evidence.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2020/03/21/htb-forest.html
+    source_role: primary
+- order: 4
+  phase: credential_access
+  source:
+    name: HTB domain
+    type: Domain
+  relationship: DCSync
+  target:
+    name: Administrator
+    type: User
+    properties: *id001
+  primitive: DCSync
+  result: DCSync yields domain credential material such as the Administrator hash if rights are successfully granted.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm secretsdump/DCSync output.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2020/03/21/htb-forest.html
+    source_role: primary
+review_status: sanitized_historical_draft

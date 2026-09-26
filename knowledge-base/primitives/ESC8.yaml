@@ -1,0 +1,11 @@
+name: ESC8
+category: ADCS
+description: Certificate enrollment relay exposure candidate.
+source_types: [Computer, User]
+target_types: [CertificateAuthority, Service]
+required_relationships: []
+preconditions: [Relayable enrollment endpoint]
+results: [CertificateIdentityCandidate]
+follow_up_information: [Endpoint protocol, Coercion path]
+related_primitives: []
+observed_examples: []

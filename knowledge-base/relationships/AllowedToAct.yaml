@@ -1,0 +1,7 @@
+name: AllowedToAct
+description: Source is allowed to act on behalf of other identities to target computer.
+source_types: [Computer, User, ServiceAccount]
+target_types: [Computer]
+direct_control: false
+maps_to_primitives: [RBCD, S4U]
+extra_conditions: [Computer identity control and service target must be confirmed.]

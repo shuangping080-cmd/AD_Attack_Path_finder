@@ -1,0 +1,156 @@
+machine:
+  name: Haze
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://github.com/purplestormctf/Writeups/tree/main/htb/machines/Haze
+  author: purplestormctf
+  role: primary
+  trust_level: public_writeup
+- url: https://panosoikogr.github.io/2025/10/29/HTB-Haze
+  author: panosoikogr.github.io
+  role: supplementary
+  trust_level: public_writeup
+- url: https://l0c4lh057.github.io/writeups/haze-htb-write-up.html
+  author: l0c4lh057.github.io
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: attacker-created machine account
+  type: Computer
+- name: HAZE-IT-BACKUP$
+  type: Computer
+- name: Splunk credential material
+  type: CredentialArtifact
+- name: gMSA target
+  type: gMSA
+- name: Splunk admin context
+  type: PrivilegedTarget
+- name: edward.martin
+  type: User
+- name: Mark.Adams
+  type: User
+relationships:
+- DecryptCredentialArtifact
+- MachineAccountQuota
+- PassTheHash
+- ReadGMSAPassword
+- WriteOwner
+primitives:
+- ComputerAccountCreation
+- CredentialReuse
+- PasswordRecovery
+- ReadGMSAPassword
+- ShadowCredentials
+attack_chain:
+- order: 1
+  phase: credential_access
+  source: null
+  relationship: DecryptCredentialArtifact
+  target:
+    name: Splunk credential material
+    type: CredentialArtifact
+  primitive: PasswordRecovery
+  result: Splunk path traversal and credential decryption produce initial AD material.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Record exact Splunk file and decrypted identity.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/purplestormctf/Writeups/tree/main/htb/machines/Haze
+    source_role: primary
+- order: 2
+  phase: enumeration
+  source:
+    name: Splunk credential material
+    type: CredentialArtifact
+  relationship: MachineAccountQuota
+  target:
+    name: attacker-created machine account
+    type: Computer
+  primitive: ComputerAccountCreation
+  result: Machine account creation supports BloodHound/Kerberos collection and later AD actions.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact machine account and quota path.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/purplestormctf/Writeups/tree/main/htb/machines/Haze
+    source_role: primary
+- order: 3
+  phase: credential_access
+  source:
+    name: Mark.Adams
+    type: User
+  relationship: ReadGMSAPassword
+  target:
+    name: gMSA target
+    type: gMSA
+  primitive: ReadGMSAPassword
+  result: The chain investigates and modifies gMSA permissions to dump gMSA credential material.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions:
+  - Principal has effective rights to read or grant gMSA password access.
+  missing_information:
+  - Confirm exact gMSA object and ACL change.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/purplestormctf/Writeups/tree/main/htb/machines/Haze
+    source_role: primary
+- order: 4
+  phase: acl_abuse
+  source:
+    name: HAZE-IT-BACKUP$
+    type: Computer
+  relationship: WriteOwner
+  target:
+    name: edward.martin
+    type: User
+  primitive: ShadowCredentials
+  result: HAZE-IT-BACKUP$ permissions are abused through group membership / WriteOwner into shadow credentials on edward.martin.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions:
+  - WriteOwner/DACL path can grant key credential manipulation.
+  missing_information:
+  - Confirm exact group membership and KeyCredentialLink write.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/purplestormctf/Writeups/tree/main/htb/machines/Haze
+    source_role: primary
+- order: 5
+  phase: lateral_movement
+  source:
+    name: edward.martin
+    type: User
+  relationship: PassTheHash
+  target:
+    name: Splunk admin context
+    type: PrivilegedTarget
+  primitive: CredentialReuse
+  result: Recovered edward.martin material leads to WinRM, Splunk backup access, and Splunk admin credential recovery.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm NTLM hash, WinRM result, and recovered Splunk admin credential.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/purplestormctf/Writeups/tree/main/htb/machines/Haze
+    source_role: primary
+review_status: sanitized_historical_draft

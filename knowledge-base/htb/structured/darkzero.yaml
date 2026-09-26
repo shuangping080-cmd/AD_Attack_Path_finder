@@ -1,0 +1,102 @@
+machine:
+  name: DarkZero
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://github.com/ervifssnt/HTB-Writeups/tree/main/DarkZero
+  author: ervifssnt
+  role: primary
+  trust_level: public_writeup
+- url: https://vulnquest58.github.io/ctf/writeups/hackthebox/darkzero
+  author: vulnquest58.github.io
+  role: supplementary
+  trust_level: public_writeup
+- url: https://a45hw1n.github.io/posts/darkzero-htb
+  author: a45hw1n.github.io
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: IT_Support
+  type: Group
+- name: IT support delegated path
+  type: PrivilegedTarget
+- name: web_svc
+  type: User
+relationships:
+- AddSelf
+- BloodHoundCollection
+- DelegatedControl
+primitives:
+- BloodHoundCollection
+- CandidatePath
+- GroupMembership
+attack_chain:
+- order: 1
+  phase: enumeration
+  source:
+    name: web_svc
+    type: User
+  relationship: BloodHoundCollection
+  target:
+    name: web_svc
+    type: User
+  primitive: BloodHoundCollection
+  result: BloodHound maps the AD privilege path from web_svc.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Record exact collection command and output.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/ervifssnt/HTB-Writeups/tree/main/DarkZero
+    source_role: primary
+- order: 2
+  phase: acl_abuse
+  source:
+    name: web_svc
+    type: User
+  relationship: AddSelf
+  target:
+    name: IT_Support
+    type: Group
+  primitive: GroupMembership
+  result: BloodHound reveals web_svc has delegated permissions on IT_Support and can add itself.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact edge type and group membership modification.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/ervifssnt/HTB-Writeups/tree/main/DarkZero
+    source_role: primary
+- order: 3
+  phase: privilege_escalation_candidate
+  source:
+    name: IT_Support
+    type: Group
+  relationship: DelegatedControl
+  target:
+    name: IT support delegated path
+    type: PrivilegedTarget
+  primitive: CandidatePath
+  result: IT_Support membership is a candidate continuation toward local/domain privilege.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: false
+  preconditions: []
+  missing_information:
+  - Extract exact post-membership privilege path from WP.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/ervifssnt/HTB-Writeups/tree/main/DarkZero
+    source_role: primary
+review_status: sanitized_historical_draft

@@ -1,0 +1,96 @@
+machine:
+  name: Absolute
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://github.com/AbdullahRizwan101/CTF-Writeups/blob/master/HackTheBox/Absolute.md
+  author: abdullahrizwan101
+  role: supplementary
+  trust_level: public_writeup
+- url: https://github.com/AdityaHebballe/Gitbook/blob/master/readme/walkthroughs/HackTheBox/Absolute-HTB.md
+  author: adityahebballe
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: BloodHound graph
+  type: GraphEvidence
+- name: unreviewed BloodHound privilege path
+  type: PrivilegedTarget
+- name: Kerberos-authenticated domain user
+  type: User
+relationships:
+- BloodHoundCollection
+- KerberosTGT
+- UnknownACLPath
+primitives:
+- BloodHoundCollection
+- CandidatePath
+- KerberosAuthentication
+attack_chain:
+- order: 1
+  phase: credential_access
+  source: null
+  relationship: KerberosTGT
+  target:
+    name: Kerberos-authenticated domain user
+    type: User
+  primitive: KerberosAuthentication
+  result: Recovered credentials are turned into a Kerberos TGT for domain-authenticated collection.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Record exact account and TGT command/result.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/AdityaHebballe/Gitbook/blob/master/readme/walkthroughs/HackTheBox/Absolute-HTB.md
+    source_role: supplementary
+- order: 2
+  phase: enumeration
+  source:
+    name: Kerberos-authenticated domain user
+    type: User
+  relationship: BloodHoundCollection
+  target:
+    name: BloodHound graph
+    type: GraphEvidence
+  primitive: BloodHoundCollection
+  result: Kerberos-aware BloodHound.py collection succeeds and imports domain graph data.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Capture exact collection zip and domain scope.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/AdityaHebballe/Gitbook/blob/master/readme/walkthroughs/HackTheBox/Absolute-HTB.md
+    source_role: supplementary
+- order: 3
+  phase: privilege_escalation_candidate
+  source:
+    name: BloodHound graph
+    type: GraphEvidence
+  relationship: UnknownACLPath
+  target:
+    name: unreviewed BloodHound privilege path
+    type: PrivilegedTarget
+  primitive: CandidatePath
+  result: The local WP source shows BloodHound-guided continuation, but exact relationship chain still needs review.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: false
+  preconditions: []
+  missing_information:
+  - Review BloodHound screenshots/text and extract exact path.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/AdityaHebballe/Gitbook/blob/master/readme/walkthroughs/HackTheBox/Absolute-HTB.md
+    source_role: supplementary
+review_status: sanitized_historical_draft

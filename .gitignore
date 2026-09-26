@@ -1,0 +1,60 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+env/
+dist/
+build/
+
+# Local data and generated reports
+data/raw/*
+data/normalized/*
+data/graphs/*
+data/reports/*
+data/phase3-validation/*
+data/analysis/*
+data/vintage/*
+data/eighteen/*
+data/local/*
+data/**/*.zip
+data/**/*.json
+data/**/evidence.json
+!data/raw/.gitkeep
+!data/normalized/.gitkeep
+!data/graphs/.gitkeep
+!data/reports/.gitkeep
+
+# Local-only writeups and private knowledge-base records
+writeups/
+knowledge-base/htb/raw-writeups/
+knowledge-base/htb/extracted/
+knowledge-base/htb/normalized/
+knowledge-base/htb/reviewed/
+knowledge-base/htb/reviewed-candidates/
+knowledge-base/htb/index/
+
+# Local SQLite knowledge base
+.local-kb/
+local-knowledge-private/
+*.db
+*.sqlite
+*.sqlite3
+*.duckdb
+*.db-shm
+*.db-wal
+
+# BloodHound exports and archives
+*_bloodhound.zip
+*bloodhound*.zip
+*bloodhound*.json
+
+# Reference repositories are cloned for local reading only.
+references/repos/
+
+# Local configuration
+config.yaml
+.env

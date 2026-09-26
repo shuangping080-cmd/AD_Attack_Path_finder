@@ -1,0 +1,19 @@
+name: GenericAllControl
+category: ACL
+description: GenericAll over an AD object indicates broad object control that may map to object-specific attack primitives.
+source_types: [User, Group, Computer, ServiceAccount]
+target_types: [User, Group, Computer, OU, GPO, Domain]
+required_relationships: [GenericAll]
+preconditions: []
+results:
+  - ObjectControlCandidate
+follow_up_information:
+  - Target object type
+  - Effective permissions
+  - Downstream relationships
+related_primitives:
+  - PasswordReset
+  - AddMember
+  - RBCD
+  - GPOAbuse
+observed_examples: []

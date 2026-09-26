@@ -1,0 +1,11 @@
+name: Kerberoast
+category: Kerberos
+description: Offline credential attack candidate against accounts with SPNs.
+source_types: [User]
+target_types: [User, ServiceAccount]
+required_relationships: [HasSPN]
+preconditions: [Authenticated domain access, Target has SPN]
+results: [CredentialCandidate]
+follow_up_information: [Password cracked, Service host, Account privileges]
+related_primitives: [TargetedKerberoast]
+observed_examples: []

@@ -1,0 +1,7 @@
+name: LinkedTo
+description: Policy or container link relationship, commonly GPO to OU or domain scope.
+source_types: [GPO]
+target_types: [OU, Domain]
+direct_control: false
+maps_to_primitives: [GPOAbuse]
+extra_conditions: [Effective policy scope and permissions must be confirmed.]

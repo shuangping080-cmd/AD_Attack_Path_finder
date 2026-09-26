@@ -1,0 +1,11 @@
+name: ASREPRoast
+category: Kerberos
+description: Offline credential attack candidate for users that do not require Kerberos pre-authentication.
+source_types: [User, Anonymous]
+target_types: [User, ServiceAccount]
+required_relationships: []
+preconditions: [Target account does not require pre-authentication]
+results: [CredentialCandidate]
+follow_up_information: [Password cracked, Account privileges]
+related_primitives: [PasswordReuse]
+observed_examples: []

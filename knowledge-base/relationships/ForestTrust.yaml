@@ -1,0 +1,7 @@
+name: ForestTrust
+description: Forest-level trust relationship.
+source_types: [Forest]
+target_types: [Forest]
+direct_control: false
+maps_to_primitives: []
+extra_conditions: [Trust direction, SID filtering, and selective auth matter.]

@@ -1,0 +1,58 @@
+id: htb-tombwatcher-writespn-targeted-kerberoast
+machine: TombWatcher
+category: credential_access
+primitive: TargetedKerberoast
+source_object_type: User
+trigger_keywords:
+  - WriteSPN
+  - servicePrincipalName
+  - SPN manipulation
+  - targeted kerberoast
+  - kerberoast
+object_indicators:
+  - source is user or controlled principal
+  - target is user or service account
+graph_indicators:
+  - User --WriteSPN--> User
+  - User --WriteSPN--> ServiceAccount
+property_indicators:
+  - target can receive servicePrincipalName value
+relationship_indicators:
+  - WriteSPN
+hypothesis:
+  description: WriteSPN allows SPN manipulation on the target identity; this can enable targeted Kerberoast, but credential recovery depends on ticket hash recovery and cracking.
+  primitive_sequence:
+    - SPNManipulation
+    - TargetedKerberoastCandidate
+validation:
+  commands:
+    - "add or set an SPN on {target}"
+    - "request a TGS for the injected SPN"
+    - "crack the recovered service ticket hash offline"
+required_evidence:
+  - WriteSPN edge exists in current graph or explicit ACL evidence
+  - SPN write operation succeeds
+  - TGS/hash is recovered
+  - hash cracking succeeds before credential control is confirmed
+missing_information:
+  - whether the SPN write is permitted in the current environment
+  - whether the resulting service ticket hash can be cracked
+next_steps:
+  - mark SPNManipulation as confirmed only when WriteSPN exists
+  - keep TargetedKerberoast as candidate until cracking succeeds
+  - if cracked, import credential_valid evidence for the target identity
+confidence:
+  initial: medium
+  with_writespn_edge: high
+  after_hash_crack: confirmed
+risk_if_valid: credential compromise of target identity
+collection_cost: medium
+historical_examples:
+  - machine: TombWatcher
+    source: HENRY
+    target: ALFRED
+    relationship: WriteSPN
+    primitive: SPNManipulation
+    evidence:
+      source_file: knowledge-base/htb/extracted/TombWatcher.domain-chain.yaml
+      excerpt: HENRY has WriteSPN over ALFRED.

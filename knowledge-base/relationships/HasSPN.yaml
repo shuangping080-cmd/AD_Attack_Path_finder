@@ -1,0 +1,7 @@
+name: HasSPN
+description: Target identity has a Service Principal Name.
+source_types: [User, ServiceAccount, Computer]
+target_types: [SPN, Service]
+direct_control: false
+maps_to_primitives: [Kerberoast]
+extra_conditions: [Credential recovery is not guaranteed.]

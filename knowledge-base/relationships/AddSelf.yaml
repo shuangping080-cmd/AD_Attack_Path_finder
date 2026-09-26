@@ -1,0 +1,7 @@
+name: AddSelf
+description: Source can add itself to target group.
+source_types: [User, Group, Computer]
+target_types: [Group]
+direct_control: true
+maps_to_primitives: [GroupMembership]
+extra_conditions: [Effective group impact must be evaluated.]

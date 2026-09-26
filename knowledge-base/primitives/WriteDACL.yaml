@@ -1,0 +1,19 @@
+name: WriteDACLControl
+category: ACL
+description: WriteDACL may allow security descriptor changes that create additional control paths.
+source_types: [User, Group, Computer, ServiceAccount]
+target_types: [User, Group, Computer, OU, GPO, Domain]
+required_relationships: [WriteDACL]
+preconditions:
+  - Effective permission to modify target DACL
+results:
+  - PermissionModificationCandidate
+follow_up_information:
+  - Desired control edge
+  - Target object type
+  - Existing owner and protection settings
+related_primitives:
+  - GenericAllControl
+  - DCSync
+  - RBCD
+observed_examples: []

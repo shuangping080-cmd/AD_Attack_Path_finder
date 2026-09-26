@@ -1,0 +1,11 @@
+name: ConstrainedDelegation
+category: Delegation
+description: Delegation path involving explicit target services.
+source_types: [User, Computer, ServiceAccount]
+target_types: [Service, Computer]
+required_relationships: [ConstrainedDelegation, AllowedToDelegate]
+preconditions: []
+results: [DelegatedAccessCandidate]
+follow_up_information: [Delegated SPNs, Target host privileges]
+related_primitives: [S4U]
+observed_examples: []

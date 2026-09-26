@@ -1,0 +1,7 @@
+name: Enroll
+description: Source can enroll against a certificate template.
+source_types: [User, Group, Computer]
+target_types: [CertificateTemplate]
+direct_control: false
+maps_to_primitives: [ESC1, ESC9]
+extra_conditions: [Template settings determine abuse potential.]

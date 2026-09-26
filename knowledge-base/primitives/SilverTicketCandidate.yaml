@@ -1,0 +1,11 @@
+name: SilverTicketCandidate
+category: Kerberos
+description: Candidate path requiring service key material and service target context.
+source_types: [Credential]
+target_types: [Service]
+required_relationships: [RunsService]
+preconditions: [Service key or equivalent credential material]
+results: [ServiceAccessCandidate]
+follow_up_information: [SPN, Service account credential]
+related_primitives: []
+observed_examples: []

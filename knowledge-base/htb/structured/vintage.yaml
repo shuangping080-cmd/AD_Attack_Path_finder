@@ -1,0 +1,146 @@
+machine:
+  name: Vintage
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://0xdf.gitlab.io/2025/04/26/htb-vintage.html
+  author: '0xdf'
+  role: primary
+  trust_level: public_writeup
+entities:
+- name: Computer object with guessable machine password
+  type: Computer
+- name: gMSA service account
+  type: gMSA
+- name: Pre-Windows 2000 Compatible Access
+  type: Group
+- name: domain privilege target
+  type: PrivilegedTarget
+- name: disabled service account
+  type: ServiceAccount
+- name: p.rosa
+  type: User
+relationships:
+- GenericWrite
+- MemberOf
+- ReadGMSAPassword
+- SPNManipulation
+primitives:
+- Pre2KComputerPassword
+- ReadGMSAPassword
+- SPNManipulation
+- TargetedKerberoast
+attack_chain:
+- order: 1
+  phase: starting_context
+  source:
+    name: p.rosa
+    type: User
+  relationship: null
+  target: null
+  primitive: null
+  result: Initial assumed-breach credential is used to collect BloodHound and enumerate the domain.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: false
+  preconditions: []
+  missing_information:
+  - Current graph must confirm the starting identity and collection scope.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/04/26/htb-vintage.html
+    source_role: primary
+- order: 2
+  phase: credential_access
+  source:
+    name: Computer object with guessable machine password
+    type: Computer
+  relationship: MemberOf
+  target:
+    name: Pre-Windows 2000 Compatible Access
+    type: Group
+  primitive: Pre2KComputerPassword
+  result: A computer object is described as a member of Pre-Windows 2000 Compatible Access, enabling a machine-password hypothesis.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions:
+  - Computer account password remains guessable/default-style.
+  missing_information:
+  - Confirm exact computer object and whether password guess succeeds in current evidence.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/04/26/htb-vintage.html
+    source_role: primary
+- order: 3
+  phase: credential_access
+  source:
+    name: Computer object with guessable machine password
+    type: Computer
+  relationship: ReadGMSAPassword
+  target:
+    name: gMSA service account
+    type: gMSA
+  primitive: ReadGMSAPassword
+  result: The machine identity is used to retrieve a gMSA managed password for a service account.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions:
+  - Machine identity has msDS-GroupMSAMembership rights.
+  missing_information:
+  - Confirm exact gMSA name and BloodHound/LDAP evidence.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/04/26/htb-vintage.html
+    source_role: primary
+- order: 4
+  phase: privilege_escalation
+  source:
+    name: gMSA service account
+    type: gMSA
+  relationship: GenericWrite
+  target:
+    name: disabled service account
+    type: ServiceAccount
+  primitive: SPNManipulation
+  result: The gMSA-derived identity can modify a disabled service account and prepare targeted Kerberoast conditions.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions:
+  - Target account can be enabled or modified; SPN write is viable.
+  missing_information:
+  - Confirm exact target service account, SPN attribute control, and enabled/disabled state.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/04/26/htb-vintage.html
+    source_role: primary
+- order: 5
+  phase: credential_access
+  source:
+    name: disabled service account
+    type: ServiceAccount
+  relationship: SPNManipulation
+  target:
+    name: domain privilege target
+    type: PrivilegedTarget
+  primitive: TargetedKerberoast
+  result: Targeted Kerberoast is used as a candidate continuation toward higher privilege.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - Ticket hash can be obtained and cracked.
+  missing_information:
+  - Confirm hash recovery and password cracking outcome.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/04/26/htb-vintage.html
+    source_role: primary
+review_status: sanitized_historical_draft

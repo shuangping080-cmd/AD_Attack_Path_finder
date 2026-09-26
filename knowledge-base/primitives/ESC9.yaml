@@ -1,0 +1,11 @@
+name: ESC9
+category: ADCS
+description: Certificate mapping exposure candidate involving weak or missing security extension behavior.
+source_types: [User, Group]
+target_types: [CertificateTemplate]
+required_relationships: [Enroll]
+preconditions: []
+results: [CertificateIdentityCandidate]
+follow_up_information: [Mapping mode, Template settings]
+related_primitives: []
+observed_examples: []

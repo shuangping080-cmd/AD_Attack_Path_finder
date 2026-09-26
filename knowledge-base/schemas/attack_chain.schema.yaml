@@ -1,0 +1,14 @@
+attack_chain:
+  - order:
+    source:
+    target:
+    relationship:
+    primitive:
+    preconditions: []
+    result:
+    evidence:
+      source_file:
+      section:
+      excerpt:
+      interpretation:
+    confidence: unknown

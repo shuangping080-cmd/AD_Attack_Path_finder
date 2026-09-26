@@ -1,0 +1,30 @@
+project:
+  name: AD-Attack-Path-Finder
+
+inputs:
+  bloodhound_json_dir: data/raw/bloodhound
+  supplemental_json_dir: data/raw/supplemental
+
+outputs:
+  normalized_dir: data/normalized
+  graph_dir: data/graphs
+  report_dir: data/reports
+
+analysis:
+  enabled_detectors:
+    - acl
+    - groups
+    - kerberos
+    - delegation
+    - adcs
+    - gmsa
+    - dmsa
+    - gpo
+    - ou
+    - privilege
+  include_candidate_paths: true
+  include_incomplete_paths: true
+
+safety:
+  analysis_only: true
+  execute_attack_actions: false

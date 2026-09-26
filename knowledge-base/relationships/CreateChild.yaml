@@ -1,0 +1,11 @@
+name: CreateChild
+description: Permission to create child objects below a container or OU.
+source_types: [User, Group, Computer]
+target_types: [OU, Container]
+direct_control: false
+maps_to_primitives:
+  - BadSuccessor
+  - OUControl
+extra_conditions:
+  - Target container must allow creation of the relevant object class
+  - BadSuccessor requires dMSA predecessor/successor evidence

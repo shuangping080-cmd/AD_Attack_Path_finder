@@ -1,0 +1,37 @@
+name: ADCS Template To High Privilege
+description: Certificate template or CA control can produce identity-control candidates when enrollment and template settings align.
+category: ADCS
+start_types: [User, Group]
+required_nodes: [CertificateTemplate, CertificateAuthority]
+required_relationships: [Enroll, TemplateControl]
+required_primitives: [ESC1, ESC4]
+optional_relationships: [ManageCA, ManageCertificates, AutoEnroll]
+steps:
+  - order: 1
+    source_type: User
+    relationship: TemplateControl
+    target_type: CertificateTemplate
+    primitive: ESC4
+    required: true
+    confirmed_if_edge_exists: true
+  - order: 2
+    source_type: User
+    relationship: Enroll
+    target_type: CertificateTemplate
+    primitive: CertificateEnrollment
+    required: false
+    confirmed_if_edge_exists: true
+    missing_if_absent:
+      question: Can the principal enroll in the controlled template?
+      relationship: Enroll
+      target_type: CertificateTemplate
+      collector: BloodHound
+result:
+  type: CertificateIdentityCandidate
+  description: ADCS abuse requires template settings and enrollment/authentication result before domain privilege is confirmed.
+examples:
+  - machine: Escape
+    chain: ADCS template or CA abuse requires template setting validation
+    confidence: medium
+confidence: low
+source_count: 1

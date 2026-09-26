@@ -1,0 +1,20 @@
+name: GenericWriteToUser
+category: ACL
+description: GenericWrite over a user object may enable additional identity-control primitives depending on writable attributes.
+source_types: [User, Group, ServiceAccount, Computer]
+target_types: [User, ServiceAccount]
+required_relationships: [GenericWrite]
+preconditions:
+  - Writable attribute must support a meaningful identity-control action.
+results:
+  - ControlOfIdentityCandidate
+follow_up_information:
+  - Writable attributes
+  - SPN presence
+  - Account type
+  - Downstream group membership
+related_primitives:
+  - SPNManipulation
+  - ShadowCredentials
+  - AttributeModification
+observed_examples: []

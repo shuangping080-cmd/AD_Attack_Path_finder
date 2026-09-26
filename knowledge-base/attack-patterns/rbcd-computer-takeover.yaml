@@ -1,0 +1,37 @@
+name: RBCD Computer Takeover
+description: AllowedToAct relationship may permit delegated access to a computer when identity and service prerequisites hold.
+category: Delegation
+start_types: [Computer, User]
+required_nodes: [Computer]
+required_relationships: [AllowedToAct]
+required_primitives: [RBCD, S4U]
+optional_relationships: [AdminTo, RunsService]
+steps:
+  - order: 1
+    source_type: Computer
+    relationship: AllowedToAct
+    target_type: Computer
+    primitive: RBCD
+    required: true
+    confirmed_if_edge_exists: true
+  - order: 2
+    source_type: Computer
+    relationship: AdminTo
+    target_type: Computer
+    primitive: LocalHostImpact
+    required: false
+    confirmed_if_edge_exists: true
+    missing_if_absent:
+      question: What local or service access does delegated computer control produce?
+      relationship: AdminTo
+      target_type: Computer
+      collector: BloodHound
+result:
+  type: DelegatedComputerAccessCandidate
+  description: RBCD is a delegated access candidate until service prerequisites and target impact are validated.
+examples:
+  - machine: Rebound
+    chain: RBCD-like delegated computer access pattern
+    confidence: low
+confidence: low
+source_count: 1

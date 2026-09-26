@@ -1,0 +1,7 @@
+name: GenericWrite
+description: Effective write access to target AD object attributes.
+source_types: [User, Group, Computer, ServiceAccount]
+target_types: [User, Group, Computer, Domain, OU, GPO]
+direct_control: false
+maps_to_primitives: [GenericWriteToUser, SPNManipulation, ShadowCredentials, GPOAbuse]
+extra_conditions: [Writable attributes and target type determine viable primitive.]

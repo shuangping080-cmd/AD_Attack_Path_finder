@@ -1,0 +1,149 @@
+machine:
+  name: Scrambled
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://github.com/theomilan3/HTB_Writeups/blob/main/Lab_Writeups/Scrambled/README.md
+  author: theomilan3
+  role: primary
+  trust_level: public_writeup
+- url: https://pointedsec.github.io/writeups/scrambled---hackthebox
+  author: pointedsec.github.io
+  role: supplementary
+  trust_level: public_writeup
+- url: https://a45hw1n.github.io/posts/scrambled-htb
+  author: a45hw1n.github.io
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: host/domain privilege target
+  type: PrivilegedTarget
+- name: MSSQL service
+  type: Service
+- name: kerberoastable MSSQL/service account
+  type: ServiceAccount
+- name: ksimpson
+  type: User
+relationships:
+- HasSPN
+- MSSQLLogin
+- PasswordEqualsUsername
+- SilverTicket
+- xp_cmdshell
+primitives:
+- HostExecution
+- Kerberoast
+- PasswordReuse
+- ServiceAccess
+- SilverTicketCandidate
+attack_chain:
+- order: 1
+  phase: credential_access
+  source: null
+  relationship: PasswordEqualsUsername
+  target:
+    name: ksimpson
+    type: User
+  primitive: PasswordReuse
+  result: A weak/insecure password pattern gives initial domain credentials.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Record exact initial username/password source.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/theomilan3/HTB_Writeups/blob/main/Lab_Writeups/Scrambled/README.md
+    source_role: primary
+- order: 2
+  phase: credential_access
+  source:
+    name: ksimpson
+    type: User
+  relationship: HasSPN
+  target:
+    name: kerberoastable MSSQL/service account
+    type: ServiceAccount
+  primitive: Kerberoast
+  result: Kerberoasting via Kerberos authentication targets a service account.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - Kerberos-authenticated GetUserSPNs request succeeds and hash cracks.
+  missing_information:
+  - Confirm exact SPN and cracked credential.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/theomilan3/HTB_Writeups/blob/main/Lab_Writeups/Scrambled/README.md
+    source_role: primary
+- order: 3
+  phase: lateral_movement
+  source:
+    name: kerberoastable MSSQL/service account
+    type: ServiceAccount
+  relationship: MSSQLLogin
+  target:
+    name: MSSQL service
+    type: Service
+  primitive: ServiceAccess
+  result: Cracked service credentials provide MSSQL access.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact MSSQL identity and login result.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/theomilan3/HTB_Writeups/blob/main/Lab_Writeups/Scrambled/README.md
+    source_role: primary
+- order: 4
+  phase: host_execution
+  source:
+    name: MSSQL service
+    type: Service
+  relationship: xp_cmdshell
+  target:
+    name: host/domain privilege target
+    type: PrivilegedTarget
+  primitive: HostExecution
+  result: MSSQL command execution / impersonation is a candidate route to host-level privilege.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm xp_cmdshell or impersonation path and resulting privilege.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/theomilan3/HTB_Writeups/blob/main/Lab_Writeups/Scrambled/README.md
+    source_role: primary
+- order: 5
+  phase: credential_access
+  source:
+    name: kerberoastable MSSQL/service account
+    type: ServiceAccount
+  relationship: SilverTicket
+  target:
+    name: MSSQL service
+    type: Service
+  primitive: SilverTicketCandidate
+  result: The WP also describes a silver-ticket style continuation against MSSQL.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm domain SID, service hash, ticket construction, and access result.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/theomilan3/HTB_Writeups/blob/main/Lab_Writeups/Scrambled/README.md
+    source_role: primary
+review_status: sanitized_historical_draft

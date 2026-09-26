@@ -1,0 +1,124 @@
+machine:
+  name: Return
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://0xdf.gitlab.io/2022/05/05/htb-return.html
+  author: '0xdf'
+  role: primary
+  trust_level: public_writeup
+- url: https://github.com/d3nkers/htb-writeup/blob/main/return
+  author: d3nkers
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: printer web panel LDAP settings
+  type: Application
+- name: Server Operators
+  type: Group
+- name: SYSTEM on Return
+  type: HostPrivilege
+- name: svc-printer
+  type: User
+relationships:
+- LDAPCredentialCapture
+- MemberOf
+- ServiceControl
+- WinRM
+primitives:
+- CredentialExposure
+- LocalPrivilege
+- RemoteManagement
+- ServiceAbuse
+attack_chain:
+- order: 1
+  phase: credential_access
+  source:
+    name: printer web panel LDAP settings
+    type: Application
+  relationship: LDAPCredentialCapture
+  target:
+    name: svc-printer
+    type: User
+  primitive: CredentialExposure
+  result: Changing the LDAP server setting causes the application to send svc-printer credentials to the attacker listener.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Record exact captured credential and request flow.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2022/05/05/htb-return.html
+    source_role: primary
+- order: 2
+  phase: lateral_movement
+  source:
+    name: svc-printer
+    type: User
+  relationship: WinRM
+  target:
+    name: svc-printer
+    type: User
+  primitive: RemoteManagement
+  result: Captured svc-printer credentials work for WinRM access.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm WinRM group/right and shell result.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2022/05/05/htb-return.html
+    source_role: primary
+- order: 3
+  phase: local_privilege
+  source:
+    name: svc-printer
+    type: User
+  relationship: MemberOf
+  target:
+    name: Server Operators
+    type: Group
+  primitive: LocalPrivilege
+  result: svc-printer is in Server Operators, enabling service modification/start/stop.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: false
+  preconditions: []
+  missing_information:
+  - Confirm group membership and host-local scope.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2022/05/05/htb-return.html
+    source_role: primary
+- order: 4
+  phase: privilege_escalation
+  source:
+    name: Server Operators
+    type: Group
+  relationship: ServiceControl
+  target:
+    name: SYSTEM on Return
+    type: HostPrivilege
+  primitive: ServiceAbuse
+  result: Server Operators service-control rights are abused to get a SYSTEM shell.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - Writable service configuration or binary path change is possible.
+  missing_information:
+  - Confirm exact service modified and SYSTEM execution output.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2022/05/05/htb-return.html
+    source_role: primary
+review_status: sanitized_historical_draft

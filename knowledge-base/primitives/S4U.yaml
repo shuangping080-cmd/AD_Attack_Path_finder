@@ -1,0 +1,11 @@
+name: S4U
+category: Kerberos
+description: Kerberos protocol transition or constrained delegation primitive.
+source_types: [User, Computer, ServiceAccount]
+target_types: [Service, Computer]
+required_relationships: [AllowedToDelegate]
+preconditions: [Delegation relationship supports target service]
+results: [ServiceAccessCandidate]
+follow_up_information: [Target service and host]
+related_primitives: [RBCD, ConstrainedDelegation]
+observed_examples: []

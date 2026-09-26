@@ -1,0 +1,106 @@
+machine:
+  name: Certified
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://lazyhackers.in/article/htb-certified
+  author: lazyhackers.in
+  role: primary
+  trust_level: public_writeup
+- url: https://daily.dev/posts/htb-certified-machine-walkthrough-easy-hackthebox-guide-for-beginners-jvh0webzh
+  author: daily.dev
+  role: supplementary
+  trust_level: public_writeup
+- url: https://cipherbuu.net/posts/HTB-Certified-Walkthrough
+  author: cipherbuu.net
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: Management
+  type: Group
+- name: Domain Admin path
+  type: PrivilegedTarget
+- name: management_svc
+  type: ServiceAccount
+- name: judith.mader
+  type: User
+relationships:
+- GenericWrite
+- ShadowCredentials
+- WriteOwner
+primitives:
+- IdentityControl
+- ShadowCredentials
+- WriteOwner
+attack_chain:
+- order: 1
+  phase: acl_abuse
+  source:
+    name: judith.mader
+    type: User
+  relationship: WriteOwner
+  target:
+    name: Management
+    type: Group
+  primitive: WriteOwner
+  result: Initial user has WriteOwner over the Management group and can turn that into group control.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions:
+  - Attacker can modify owner/DACL and add membership or equivalent rights.
+  missing_information:
+  - Confirm exact BloodHound edge properties and inherited status.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://lazyhackers.in/article/htb-certified
+    source_role: primary
+- order: 2
+  phase: acl_abuse
+  source:
+    name: Management
+    type: Group
+  relationship: GenericWrite
+  target:
+    name: management_svc
+    type: ServiceAccount
+  primitive: ShadowCredentials
+  result: Management group has GenericWrite over management_svc, enabling a shadow credential style identity takeover candidate.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions:
+  - Target account permits KeyCredentialLink manipulation.
+  missing_information:
+  - Confirm KeyCredentialLink write viability and resulting credential material.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://lazyhackers.in/article/htb-certified
+    source_role: primary
+- order: 3
+  phase: privilege_escalation_candidate
+  source:
+    name: management_svc
+    type: ServiceAccount
+  relationship: ShadowCredentials
+  target:
+    name: Domain Admin path
+    type: PrivilegedTarget
+  primitive: IdentityControl
+  result: Compromised management_svc is a candidate continuation toward privileged domain objects.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Normalize the remaining exact chain from WP and current BloodHound graph.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://lazyhackers.in/article/htb-certified
+    source_role: primary
+review_status: sanitized_historical_draft

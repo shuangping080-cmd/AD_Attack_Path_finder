@@ -1,0 +1,25 @@
+required:
+  - id
+  - category
+  - primitive
+  - source_object_type
+  - hypothesis
+  - validation
+optional:
+  - machine
+  - trigger_keywords
+  - object_indicators
+  - graph_indicators
+  - property_indicators
+  - relationship_indicators
+  - required_evidence
+  - missing_information
+  - next_steps
+  - confidence
+  - risk_if_valid
+  - collection_cost
+  - historical_examples
+notes:
+  - Pattern cards describe reusable mechanisms, not confirmed current-graph facts.
+  - Historical examples can support explanation and ranking but must not enter confirmed_edges.
+  - Validation commands are analyst guidance and must not be executed by the tool.

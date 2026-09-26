@@ -1,0 +1,148 @@
+machine:
+  name: Fuse
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://0xdf.gitlab.io/2020/10/31/htb-fuse.html
+  author: '0xdf'
+  role: primary
+  trust_level: public_writeup
+- url: https://pointedsec.github.io/writeups/fuse---hackthebox
+  author: pointedsec.github.io
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: printer admin page
+  type: Application
+- name: RPC credential comments
+  type: CredentialArtifact
+- name: CAPCOM vulnerable driver context
+  type: HostPrivilege
+- name: SYSTEM on Fuse
+  type: HostPrivilege
+- name: enumerated domain users
+  type: UserSet
+relationships:
+- DriverLoad
+- KernelExploit
+- PasswordChangeRequired
+- RPCEnumeration
+- UserEnumeration
+primitives:
+- CredentialExposure
+- PasswordReset
+- PasswordSpray
+- ServiceAbuse
+- VulnerableDriver
+attack_chain:
+- order: 1
+  phase: credential_access
+  source:
+    name: printer admin page
+    type: Application
+  relationship: UserEnumeration
+  target:
+    name: enumerated domain users
+    type: UserSet
+  primitive: PasswordSpray
+  result: Printer admin content provides usernames and wordlist material for password guessing.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Record exact usernames and generated wordlist.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2020/10/31/htb-fuse.html
+    source_role: primary
+- order: 2
+  phase: credential_access
+  source:
+    name: enumerated domain users
+    type: UserSet
+  relationship: PasswordChangeRequired
+  target:
+    name: enumerated domain users
+    type: UserSet
+  primitive: PasswordReset
+  result: A found account requires password change before use.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact account and password-change workflow.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2020/10/31/htb-fuse.html
+    source_role: primary
+- order: 3
+  phase: credential_access
+  source:
+    name: enumerated domain users
+    type: UserSet
+  relationship: RPCEnumeration
+  target:
+    name: RPC credential comments
+    type: CredentialArtifact
+  primitive: CredentialExposure
+  result: RPC access exposes additional credentials in comments.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Record exact RPC object/comment and recovered credential.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2020/10/31/htb-fuse.html
+    source_role: primary
+- order: 4
+  phase: local_privilege
+  source:
+    name: RPC credential comments
+    type: CredentialArtifact
+  relationship: DriverLoad
+  target:
+    name: CAPCOM vulnerable driver context
+    type: HostPrivilege
+  primitive: VulnerableDriver
+  result: Recovered access enables vulnerable driver loading in the historical chain.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm driver load and local privilege context.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2020/10/31/htb-fuse.html
+    source_role: primary
+- order: 5
+  phase: privilege_escalation
+  source:
+    name: CAPCOM vulnerable driver context
+    type: HostPrivilege
+  relationship: KernelExploit
+  target:
+    name: SYSTEM on Fuse
+    type: HostPrivilege
+  primitive: ServiceAbuse
+  result: CAPCOM/sysdriver style local escalation is used to reach SYSTEM.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exploit command and SYSTEM output.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2020/10/31/htb-fuse.html
+    source_role: primary
+review_status: sanitized_historical_draft

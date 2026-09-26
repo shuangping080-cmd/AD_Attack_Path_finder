@@ -1,0 +1,63 @@
+id: htb-eighteen-ou-createchild-badsuccessor
+machine: Eighteen
+category: privilege_escalation
+primitive: BadSuccessor
+source_object_type: Group
+trigger_keywords:
+  - CreateChild
+  - OU control
+  - dMSA
+  - BadSuccessor
+  - successor
+  - predecessor
+object_indicators:
+  - source is user or group with OU child-object rights
+  - target is OU
+graph_indicators:
+  - User --MemberOf--> Group
+  - Group --CreateChild--> OU
+  - User --CreateChild--> OU
+property_indicators:
+  - domain functional level supports dMSA
+relationship_indicators:
+  - MemberOf
+  - CreateChild
+  - GenericAll
+  - GenericWrite
+hypothesis:
+  description: Control or child-object creation rights over an OU can be a prerequisite for BadSuccessor-style dMSA abuse, but OU control alone is not domain compromise.
+  primitive_sequence:
+    - OUControl
+    - BadSuccessorCandidate
+validation:
+  commands:
+    - "confirm effective ACL on the OU with BloodHound, LDAP, or PowerView"
+    - "check whether a dMSA can be created or modified under the OU"
+    - "verify predecessor/successor linkage and target account control"
+required_evidence:
+  - source can reach the group or principal that holds OU rights
+  - CreateChild or equivalent OU control is confirmed
+  - dMSA creation/modification is possible
+  - successor/predecessor relationship is controllable
+missing_information:
+  - whether the current BloodHound graph contains the OU ACE
+  - whether LDAP confirms effective CreateChild on the OU
+  - whether dMSA successor/predecessor abuse is possible in the current domain
+next_steps:
+  - keep path as mechanism hypothesis if CreateChild is only historical support
+  - request LDAP/PowerView evidence for the OU ACE
+  - only promote after current-environment evidence is imported
+confidence:
+  initial: medium
+  with_current_createchild: medium
+  after_dmsa_validation: high
+risk_if_valid: domain privilege escalation candidate
+collection_cost: medium
+historical_examples:
+  - machine: Eighteen
+    source: IT
+    target: STAFF
+    relationship: CreateChild
+    primitive: BadSuccessor
+    evidence:
+      excerpt: IT group has CreateChild permission on the Staff OU; adam.scott inherits this permission.

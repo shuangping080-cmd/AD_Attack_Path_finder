@@ -1,0 +1,128 @@
+machine:
+  name: Monteverde
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://0xdf.gitlab.io/2020/06/13/htb-monteverde.html
+  author: '0xdf'
+  role: primary
+  trust_level: public_writeup
+- url: https://github.com/d3nkers/htb-writeup/blob/main/monteverde
+  author: d3nkers
+  role: supplementary
+  trust_level: public_writeup
+- url: https://github.com/zweilosec/htb-writeups/blob/master/windows-machines/medium/monteverde-write-up.md
+  author: zweilosec
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: Azure automation credential file
+  type: CredentialArtifact
+- name: Azure Admins
+  type: Group
+- name: Administrator
+  type: User
+  properties: &id001
+    high_value: true
+- name: mhope
+  type: User
+relationships:
+- CredentialReuse
+- MemberOf
+- PasswordSpray
+- ReadCredentialArtifact
+primitives:
+- AdminAccess
+- CredentialExposure
+- GroupMembership
+- PasswordReuse
+attack_chain:
+- order: 1
+  phase: credential_access
+  source: null
+  relationship: PasswordSpray
+  target:
+    name: mhope
+    type: User
+  primitive: PasswordReuse
+  result: Password reuse/spraying identifies usable credentials for mhope.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Record exact recovered password source and spray result.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2020/06/13/htb-monteverde.html
+    source_role: primary
+- order: 2
+  phase: privilege_context
+  source:
+    name: mhope
+    type: User
+  relationship: MemberOf
+  target:
+    name: Azure Admins
+    type: Group
+  primitive: GroupMembership
+  result: mhope is a member of Azure Admins, providing access to Azure-related local material.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: false
+  preconditions: []
+  missing_information:
+  - Confirm exact group membership from LDAP/BloodHound.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2020/06/13/htb-monteverde.html
+    source_role: primary
+- order: 3
+  phase: credential_access
+  source:
+    name: Azure Admins
+    type: Group
+  relationship: ReadCredentialArtifact
+  target:
+    name: Azure automation credential file
+    type: CredentialArtifact
+  primitive: CredentialExposure
+  result: Azure-related files expose credential material usable for administrator access.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Record exact file path and decrypted credential.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2020/06/13/htb-monteverde.html
+    source_role: primary
+- order: 4
+  phase: privilege_escalation
+  source:
+    name: Azure automation credential file
+    type: CredentialArtifact
+  relationship: CredentialReuse
+  target:
+    name: Administrator
+    type: User
+    properties: *id001
+  primitive: AdminAccess
+  result: Recovered credential material leads to administrator-level access in the historical chain.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact target account and scope of administrative rights.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2020/06/13/htb-monteverde.html
+    source_role: primary
+review_status: sanitized_historical_draft

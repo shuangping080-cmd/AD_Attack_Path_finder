@@ -1,0 +1,7 @@
+name: RBCD
+description: Resource-based constrained delegation relationship.
+source_types: [Computer, User, ServiceAccount]
+target_types: [Computer]
+direct_control: false
+maps_to_primitives: [RBCD]
+extra_conditions: [Model as AllowedToAct when possible.]

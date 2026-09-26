@@ -1,0 +1,7 @@
+name: Owns
+description: Source owns the target object security descriptor.
+source_types: [User, Group, Computer, ServiceAccount]
+target_types: [User, Group, Computer, Domain, OU, GPO]
+direct_control: false
+maps_to_primitives: [WriteDACLControl]
+extra_conditions: [Owner rights must be translated into effective permissions.]

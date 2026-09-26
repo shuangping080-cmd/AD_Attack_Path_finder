@@ -1,0 +1,135 @@
+machine:
+  name: RustyKey
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://0xdf.gitlab.io/2025/11/08/htb-rustykey.html
+  author: '0xdf'
+  role: primary
+  trust_level: public_writeup
+- url: https://github.com/Blackthorn23/CTF-Writeups/tree/main/Learning/HackTheBox/Machines/Hard/RustyKey
+  author: blackthorn23
+  role: supplementary
+  trust_level: public_writeup
+- url: https://github.com/purplestormctf/Writeups/tree/main/htb/machines/RustyKey
+  author: purplestormctf
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: Domain Controller
+  type: Computer
+  properties: &id001
+    high_value: true
+- name: DelegationManager
+  type: Group
+- name: AdminSDHolder-protected user
+  type: User
+  properties: &id002
+    high_value: true
+- name: initial delegated identity
+  type: User
+relationships:
+- AddSelf
+- AdminSDHolderBypass
+- AllowedToAct
+- Timeroast
+primitives:
+- AdminSDHolderAbuse
+- GroupMembership
+- KerberosHashRecovery
+- RBCD
+attack_chain:
+- order: 1
+  phase: credential_access
+  source:
+    name: initial delegated identity
+    type: User
+  relationship: Timeroast
+  target:
+    name: initial delegated identity
+    type: User
+  primitive: KerberosHashRecovery
+  result: The historical chain starts with Timeroasting a service account hash using provided credentials.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - Timeroastable target exists and hash cracking succeeds.
+  missing_information:
+  - Record exact target account and cracked material.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/11/08/htb-rustykey.html
+    source_role: primary
+- order: 2
+  phase: acl_abuse
+  source:
+    name: initial delegated identity
+    type: User
+  relationship: AddSelf
+  target:
+    name: DelegationManager
+    type: Group
+  primitive: GroupMembership
+  result: AddSelf allows the attacker-controlled identity to join DelegationManager.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact AddSelf edge and resulting group membership.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/11/08/htb-rustykey.html
+    source_role: primary
+- order: 3
+  phase: delegation
+  source:
+    name: DelegationManager
+    type: Group
+  relationship: AllowedToAct
+  target:
+    name: Domain Controller
+    type: Computer
+    properties: *id001
+  primitive: RBCD
+  result: DelegationManager can configure resource-based constrained delegation against the DC.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions:
+  - AllowedToAct/RBCD write path is valid and S4U flow succeeds.
+  missing_information:
+  - Confirm exact msDS-AllowedToActOnBehalfOfOtherIdentity change.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/11/08/htb-rustykey.html
+    source_role: primary
+- order: 4
+  phase: privilege_escalation_candidate
+  source:
+    name: initial delegated identity
+    type: User
+  relationship: AdminSDHolderBypass
+  target:
+    name: AdminSDHolder-protected user
+    type: User
+    properties: *id002
+  primitive: AdminSDHolderAbuse
+  result: The chain also includes an AdminSDHolder bypass/reset of privileged user passwords.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Capture exact protected user and reset mechanism.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/11/08/htb-rustykey.html
+    source_role: primary
+review_status: sanitized_historical_draft

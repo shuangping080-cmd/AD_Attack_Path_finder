@@ -1,0 +1,175 @@
+machine:
+  name: Pirate
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://github.com/momenbasel/htb-writeups/tree/main/machines/hard/Pirate
+  author: momenbasel
+  role: primary
+  trust_level: public_writeup
+- url: https://gist.github.com/C4sh3R/9e58b40e3f5540f9cbded1b2cb7b007c
+  author: c4sh3r
+  role: supplementary
+  trust_level: public_writeup
+- url: https://github.com/jaydenbates6-code/htb/tree/main/machines/hard/Pirate
+  author: jaydenbates6-code
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: Pre2K computer account
+  type: Computer
+- name: RBCD target
+  type: Computer
+- name: WEB01
+  type: Computer
+- name: gMSA managed password
+  type: gMSA
+- name: domain administrator target
+  type: PrivilegedTarget
+- name: a.white / a.white_adm
+  type: User
+relationships:
+- AllowedToAct
+- ForceChangePassword
+- PetitPotam
+- PreWindows2000ComputerPassword
+- ReadGMSAPassword
+- WriteSPN
+primitives:
+- NTLMRelay
+- PasswordReset
+- Pre2KComputerPassword
+- RBCD
+- ReadGMSAPassword
+- S4U
+attack_chain:
+- order: 1
+  phase: credential_access
+  source: null
+  relationship: PreWindows2000ComputerPassword
+  target:
+    name: Pre2K computer account
+    type: Computer
+  primitive: Pre2KComputerPassword
+  result: Initial access abuses Pre-Windows 2000 compatible computer account passwords.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact computer account and password derivation.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/momenbasel/htb-writeups/tree/main/machines/hard/Pirate
+    source_role: primary
+- order: 2
+  phase: credential_access
+  source:
+    name: Pre2K computer account
+    type: Computer
+  relationship: ReadGMSAPassword
+  target:
+    name: gMSA managed password
+    type: gMSA
+  primitive: ReadGMSAPassword
+  result: The Pre2K computer account reads gMSA managed password material.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact gMSA object and read edge.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/momenbasel/htb-writeups/tree/main/machines/hard/Pirate
+    source_role: primary
+- order: 3
+  phase: relay
+  source:
+    name: WEB01
+    type: Computer
+  relationship: PetitPotam
+  target:
+    name: RBCD target
+    type: Computer
+  primitive: NTLMRelay
+  result: PetitPotam coerces WEB01 authentication for relay to LDAPS.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm coercion and relay target.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/momenbasel/htb-writeups/tree/main/machines/hard/Pirate
+    source_role: primary
+- order: 4
+  phase: delegation
+  source:
+    name: RBCD target
+    type: Computer
+  relationship: AllowedToAct
+  target:
+    name: RBCD target
+    type: Computer
+  primitive: RBCD
+  result: NTLM relay writes RBCD via msDS-AllowedToActOnBehalfOfOtherIdentity.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact LDAP write and target computer.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/momenbasel/htb-writeups/tree/main/machines/hard/Pirate
+    source_role: primary
+- order: 5
+  phase: acl_abuse
+  source:
+    name: a.white / a.white_adm
+    type: User
+  relationship: ForceChangePassword
+  target:
+    name: a.white / a.white_adm
+    type: User
+  primitive: PasswordReset
+  result: ForceChangePassword is used to pivot from a.white to a privileged variant.
+  status: historical_wp_candidate
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact source/target and password reset result.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/momenbasel/htb-writeups/tree/main/machines/hard/Pirate
+    source_role: primary
+- order: 6
+  phase: delegation
+  source:
+    name: RBCD target
+    type: Computer
+  relationship: WriteSPN
+  target:
+    name: domain administrator target
+    type: PrivilegedTarget
+  primitive: S4U
+  result: WriteSPN / altservice / S4U2Proxy SPN-jacking leads toward domain admin impersonation.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact SPN, S4U flow, and final shell.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/momenbasel/htb-writeups/tree/main/machines/hard/Pirate
+    source_role: primary
+review_status: sanitized_historical_draft

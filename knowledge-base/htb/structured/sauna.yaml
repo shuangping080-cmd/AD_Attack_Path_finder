@@ -1,0 +1,122 @@
+machine:
+  name: Sauna
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://0xdf.gitlab.io/2020/07/18/htb-sauna.html
+  author: '0xdf'
+  role: primary
+  trust_level: public_writeup
+entities:
+- name: EGOTISTICAL-BANK domain
+  type: Domain
+- name: svc_loanmgr
+  type: ServiceAccount
+- name: Administrator
+  type: User
+  properties: &id001
+    high_value: true
+- name: fsmith
+  type: User
+relationships:
+- ASREPRoastable
+- DCSync
+- HostCredentialExposure
+primitives:
+- ASREPRoast
+- DCSync
+- PasswordReuse
+attack_chain:
+- order: 1
+  phase: credential_access
+  source:
+    name: fsmith
+    type: User
+  relationship: ASREPRoastable
+  target:
+    name: fsmith
+    type: User
+  primitive: ASREPRoast
+  result: User enumeration and AS-REP roasting lead to fsmith credential recovery.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - Pre-auth disabled and hash cracking succeeds.
+  missing_information:
+  - Confirm exact username source and cracked password.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2020/07/18/htb-sauna.html
+    source_role: primary
+- order: 2
+  phase: credential_access
+  source:
+    name: fsmith
+    type: User
+  relationship: HostCredentialExposure
+  target:
+    name: svc_loanmgr
+    type: ServiceAccount
+  primitive: PasswordReuse
+  result: Host enumeration exposes additional service account credentials.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact autologon/credential source and service account name.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2020/07/18/htb-sauna.html
+    source_role: primary
+- order: 3
+  phase: acl_abuse
+  source:
+    name: svc_loanmgr
+    type: ServiceAccount
+  relationship: DCSync
+  target:
+    name: EGOTISTICAL-BANK domain
+    type: Domain
+  primitive: DCSync
+  result: The service account has or can use replication privileges for DCSync.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions:
+  - Replication rights are present or can be granted.
+  missing_information:
+  - Confirm BloodHound edge and DCSync command output.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2020/07/18/htb-sauna.html
+    source_role: primary
+- order: 4
+  phase: credential_access
+  source:
+    name: EGOTISTICAL-BANK domain
+    type: Domain
+  relationship: DCSync
+  target:
+    name: Administrator
+    type: User
+    properties: *id001
+  primitive: DCSync
+  result: DCSync provides administrator credential material.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm secretsdump output and resulting access.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2020/07/18/htb-sauna.html
+    source_role: primary
+review_status: sanitized_historical_draft

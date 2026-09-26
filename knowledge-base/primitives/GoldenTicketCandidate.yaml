@@ -1,0 +1,11 @@
+name: GoldenTicketCandidate
+category: Kerberos
+description: Candidate domain-wide Kerberos control path when krbtgt-level material is available.
+source_types: [Credential]
+target_types: [Domain]
+required_relationships: []
+preconditions: [Domain ticket-signing secret material]
+results: [DomainControlCandidate]
+follow_up_information: [Credential source]
+related_primitives: [DCSync]
+observed_examples: []

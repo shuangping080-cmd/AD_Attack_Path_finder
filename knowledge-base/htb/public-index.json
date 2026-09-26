@@ -1,0 +1,545 @@
+{
+  "schema": "adpath.public_historical_chains.v1",
+  "public_safety": {
+    "raw_writeups_included": false,
+    "raw_bloodhound_included": false,
+    "sqlite_included": false
+  },
+  "machine_count": 29,
+  "machines": [
+    {
+      "machine": "Absolute",
+      "path": "knowledge-base/htb/structured/absolute.yaml",
+      "steps": 3,
+      "relationships": [
+        "BloodHoundCollection",
+        "KerberosTGT",
+        "UnknownACLPath"
+      ],
+      "primitives": [
+        "BloodHoundCollection",
+        "CandidatePath",
+        "KerberosAuthentication"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Active",
+      "path": "knowledge-base/htb/structured/active.yaml",
+      "steps": 3,
+      "relationships": [
+        "CredentialReuse",
+        "GPPPassword",
+        "HasSPN"
+      ],
+      "primitives": [
+        "AdminAccess",
+        "Kerberoast",
+        "PasswordRecovery"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Administrator",
+      "path": "knowledge-base/htb/structured/administrator.yaml",
+      "steps": 4,
+      "relationships": [
+        "DCSync",
+        "GenericAll",
+        "GenericWrite",
+        "SPNManipulation"
+      ],
+      "primitives": [
+        "DCSync",
+        "PasswordReset",
+        "SPNManipulation",
+        "TargetedKerberoast"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Anubis",
+      "path": "knowledge-base/htb/structured/anubis.yaml",
+      "steps": 3,
+      "relationships": [
+        "CertificateAuthentication",
+        "MemberOf",
+        "TemplateControl"
+      ],
+      "primitives": [
+        "ADCSCertificateAbuse",
+        "ESC4",
+        "GroupMembership"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Authority",
+      "path": "knowledge-base/htb/structured/authority.yaml",
+      "steps": 5,
+      "relationships": [
+        "Enroll",
+        "MachineAccountQuota",
+        "PassTheCert",
+        "ReadCredentialArtifact",
+        "SilverTicket"
+      ],
+      "primitives": [
+        "ADCSCertificateAbuse",
+        "ComputerAccountCreation",
+        "ESC1",
+        "PasswordRecovery",
+        "SilverTicketCandidate"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Certificate",
+      "path": "knowledge-base/htb/structured/certificate.yaml",
+      "steps": 6,
+      "relationships": [
+        "CertificateAuthentication",
+        "ESC3",
+        "Enroll",
+        "ForgeCACertificate",
+        "KerberosPreauthHash",
+        "SeManageVolumePrivilege"
+      ],
+      "primitives": [
+        "ADCSCertificateAbuse",
+        "ASREPRoast",
+        "ESC3",
+        "GoldenCertificateCandidate",
+        "LocalPrivilege"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Certified",
+      "path": "knowledge-base/htb/structured/certified.yaml",
+      "steps": 3,
+      "relationships": [
+        "GenericWrite",
+        "ShadowCredentials",
+        "WriteOwner"
+      ],
+      "primitives": [
+        "IdentityControl",
+        "ShadowCredentials",
+        "WriteOwner"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "DarkZero",
+      "path": "knowledge-base/htb/structured/darkzero.yaml",
+      "steps": 3,
+      "relationships": [
+        "AddSelf",
+        "BloodHoundCollection",
+        "DelegatedControl"
+      ],
+      "primitives": [
+        "BloodHoundCollection",
+        "CandidatePath",
+        "GroupMembership"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Eighteen",
+      "path": "knowledge-base/htb/structured/eighteen.yaml",
+      "steps": 4,
+      "relationships": [
+        "BadSuccessor",
+        "CreateChild",
+        "MemberOf"
+      ],
+      "primitives": [
+        "BadSuccessor",
+        "DMSAAbuse",
+        "GroupMembership",
+        "OUControl"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Flight",
+      "path": "knowledge-base/htb/structured/flight.yaml",
+      "steps": 5,
+      "relationships": [
+        "NTLMCapture",
+        "PasswordReuse",
+        "WebShell",
+        "WriteShare"
+      ],
+      "primitives": [
+        "HostExecution",
+        "NTLMCapture",
+        "NetNTLMRelayOrCrack",
+        "PasswordReuse",
+        "WebShellUpload"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Forest",
+      "path": "knowledge-base/htb/structured/forest.yaml",
+      "steps": 4,
+      "relationships": [
+        "ASREPRoastable",
+        "DCSync",
+        "MemberOf",
+        "WriteDACL"
+      ],
+      "primitives": [
+        "ASREPRoast",
+        "DCSync",
+        "GroupMembership"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Fuse",
+      "path": "knowledge-base/htb/structured/fuse.yaml",
+      "steps": 5,
+      "relationships": [
+        "DriverLoad",
+        "KernelExploit",
+        "PasswordChangeRequired",
+        "RPCEnumeration",
+        "UserEnumeration"
+      ],
+      "primitives": [
+        "CredentialExposure",
+        "PasswordReset",
+        "PasswordSpray",
+        "ServiceAbuse",
+        "VulnerableDriver"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Ghostlink",
+      "path": "knowledge-base/htb/structured/ghostlink.yaml",
+      "steps": 3,
+      "relationships": [
+        "DCSync",
+        "NTLMRelay",
+        "ServiceEnumeration"
+      ],
+      "primitives": [
+        "DCSync",
+        "NTLMRelay",
+        "ServiceDiscovery"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Haze",
+      "path": "knowledge-base/htb/structured/haze.yaml",
+      "steps": 5,
+      "relationships": [
+        "DecryptCredentialArtifact",
+        "MachineAccountQuota",
+        "PassTheHash",
+        "ReadGMSAPassword",
+        "WriteOwner"
+      ],
+      "primitives": [
+        "ComputerAccountCreation",
+        "CredentialReuse",
+        "PasswordRecovery",
+        "ReadGMSAPassword",
+        "ShadowCredentials"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Monteverde",
+      "path": "knowledge-base/htb/structured/monteverde.yaml",
+      "steps": 4,
+      "relationships": [
+        "CredentialReuse",
+        "MemberOf",
+        "PasswordSpray",
+        "ReadCredentialArtifact"
+      ],
+      "primitives": [
+        "AdminAccess",
+        "CredentialExposure",
+        "GroupMembership",
+        "PasswordReuse"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Multimaster",
+      "path": "knowledge-base/htb/structured/multimaster.yaml",
+      "steps": 4,
+      "relationships": [
+        "ASREPRoastable",
+        "PasswordSpray",
+        "SQLInjection",
+        "TokenAbuse"
+      ],
+      "primitives": [
+        "ASREPRoast",
+        "HashExtraction",
+        "PasswordSpray",
+        "TokenImpersonation"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "NanoCorp",
+      "path": "knowledge-base/htb/structured/nanocorp.yaml",
+      "steps": 5,
+      "relationships": [
+        "BloodHoundCollection",
+        "CVE-2025-24071",
+        "ForceChangePassword",
+        "HasSession",
+        "MSIExecution"
+      ],
+      "primitives": [
+        "BloodHoundCollection",
+        "HostExecution",
+        "NetNTLMRelayOrCrack",
+        "PasswordReset",
+        "SessionCredentialAccess"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Outdated",
+      "path": "knowledge-base/htb/structured/outdated.yaml",
+      "steps": 5,
+      "relationships": [
+        "BloodHoundCollection",
+        "Follina",
+        "ShadowCredentials",
+        "WSUSAbuse",
+        "WinRM"
+      ],
+      "primitives": [
+        "AdminAccess",
+        "BloodHoundCollection",
+        "CodeExecution",
+        "RemoteManagement",
+        "ShadowCredentials"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Pirate",
+      "path": "knowledge-base/htb/structured/pirate.yaml",
+      "steps": 6,
+      "relationships": [
+        "AllowedToAct",
+        "ForceChangePassword",
+        "PetitPotam",
+        "PreWindows2000ComputerPassword",
+        "ReadGMSAPassword",
+        "WriteSPN"
+      ],
+      "primitives": [
+        "NTLMRelay",
+        "PasswordReset",
+        "Pre2KComputerPassword",
+        "RBCD",
+        "ReadGMSAPassword",
+        "S4U"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Retro",
+      "path": "knowledge-base/htb/structured/retro.yaml",
+      "steps": 5,
+      "relationships": [
+        "CertificateAuthentication",
+        "Enroll",
+        "GenericWrite",
+        "PasswordEqualsUsername",
+        "PreWindows2000ComputerPassword"
+      ],
+      "primitives": [
+        "ADCSCertificateAbuse",
+        "ESC1",
+        "PasswordReset",
+        "PasswordReuse",
+        "Pre2KComputerPassword"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Return",
+      "path": "knowledge-base/htb/structured/return.yaml",
+      "steps": 4,
+      "relationships": [
+        "LDAPCredentialCapture",
+        "MemberOf",
+        "ServiceControl",
+        "WinRM"
+      ],
+      "primitives": [
+        "CredentialExposure",
+        "LocalPrivilege",
+        "RemoteManagement",
+        "ServiceAbuse"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "RustyKey",
+      "path": "knowledge-base/htb/structured/rustykey.yaml",
+      "steps": 4,
+      "relationships": [
+        "AddSelf",
+        "AdminSDHolderBypass",
+        "AllowedToAct",
+        "Timeroast"
+      ],
+      "primitives": [
+        "AdminSDHolderAbuse",
+        "GroupMembership",
+        "KerberosHashRecovery",
+        "RBCD"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Sauna",
+      "path": "knowledge-base/htb/structured/sauna.yaml",
+      "steps": 4,
+      "relationships": [
+        "ASREPRoastable",
+        "DCSync",
+        "HostCredentialExposure"
+      ],
+      "primitives": [
+        "ASREPRoast",
+        "DCSync",
+        "PasswordReuse"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Scrambled",
+      "path": "knowledge-base/htb/structured/scrambled.yaml",
+      "steps": 5,
+      "relationships": [
+        "HasSPN",
+        "MSSQLLogin",
+        "PasswordEqualsUsername",
+        "SilverTicket",
+        "xp_cmdshell"
+      ],
+      "primitives": [
+        "HostExecution",
+        "Kerberoast",
+        "PasswordReuse",
+        "ServiceAccess",
+        "SilverTicketCandidate"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Search",
+      "path": "knowledge-base/htb/structured/search.yaml",
+      "steps": 4,
+      "relationships": [
+        "BloodHoundCollection",
+        "PasswordSpray",
+        "UnknownACLPath",
+        "WebLogin"
+      ],
+      "primitives": [
+        "ApplicationAccess",
+        "BloodHoundCollection",
+        "CandidatePath",
+        "PasswordSpray"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Sizzle",
+      "path": "knowledge-base/htb/structured/sizzle.yaml",
+      "steps": 4,
+      "relationships": [
+        "BypassAppLocker",
+        "CertificateAuthentication",
+        "DCSync",
+        "Kerberoast"
+      ],
+      "primitives": [
+        "CertificateAuthentication",
+        "DCSync",
+        "HostExecution",
+        "Kerberoast"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "StreamIO",
+      "path": "knowledge-base/htb/structured/streamio.yaml",
+      "steps": 5,
+      "relationships": [
+        "BloodHoundCollection",
+        "CredentialReuse",
+        "MSSQLCommandExecution",
+        "ReadLAPS",
+        "SQLInjection"
+      ],
+      "primitives": [
+        "AdminAccess",
+        "BloodHoundCollection",
+        "CredentialExposure",
+        "HostExecution",
+        "ServiceAccess"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "University",
+      "path": "knowledge-base/htb/structured/university.yaml",
+      "steps": 6,
+      "relationships": [
+        "AddComputer",
+        "AllowedToAct",
+        "CVE-2023-33733",
+        "ReadGMSAPassword",
+        "UnconstrainedDelegation",
+        "mitm6/WPAD"
+      ],
+      "primitives": [
+        "CodeExecution",
+        "ComputerAccountCreation",
+        "NTLMRelay",
+        "RBCD",
+        "ReadGMSAPassword",
+        "UnconstrainedDelegation"
+      ],
+      "review_status": "sanitized_historical_draft"
+    },
+    {
+      "machine": "Vintage",
+      "path": "knowledge-base/htb/structured/vintage.yaml",
+      "steps": 5,
+      "relationships": [
+        "GenericWrite",
+        "MemberOf",
+        "ReadGMSAPassword",
+        "SPNManipulation"
+      ],
+      "primitives": [
+        "Pre2KComputerPassword",
+        "ReadGMSAPassword",
+        "SPNManipulation",
+        "TargetedKerberoast"
+      ],
+      "review_status": "sanitized_historical_draft"
+    }
+  ]
+}

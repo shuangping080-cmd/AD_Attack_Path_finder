@@ -1,0 +1,9 @@
+bloodhound_semantic_gaps:
+  - type:
+    description:
+    required_for_path: true
+    evidence:
+      source_file:
+      section:
+      excerpt:
+      interpretation:

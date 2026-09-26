@@ -1,0 +1,16 @@
+name: GroupMembership
+category: PrivilegeInheritance
+description: Group membership may cause inherited access to downstream objects or privileged groups.
+source_types: [User, Group, ServiceAccount, Computer]
+target_types: [Group]
+required_relationships: [MemberOf]
+preconditions: []
+results:
+  - PrivilegeInheritance
+follow_up_information:
+  - Group privilege tier
+  - Nested group membership
+  - Downstream AdminTo or ACL relationships
+related_primitives:
+  - LocalAdmin
+observed_examples: []

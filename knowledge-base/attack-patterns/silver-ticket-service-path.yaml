@@ -1,0 +1,41 @@
+name: Silver Ticket Service Path
+description: Service key material and service context may enable a service-specific access path.
+category: Kerberos
+start_types: [ServiceAccount]
+required_nodes: [Credential, Service]
+required_relationships: [RunsService, HasSPN]
+required_primitives: [SilverTicketCandidate]
+optional_relationships: [AdminTo, AuthenticatesTo]
+steps:
+  - order: 1
+    source_type: ServiceAccount
+    relationship: HasSPN
+    target_type: Computer
+    primitive: SilverTicketCandidate
+    required: true
+    confirmed_if_edge_exists: true
+    missing_if_absent:
+      question: Which service SPN is usable for a service-specific ticket?
+      relationship: HasSPN
+      target_type: Computer
+      collector: BloodHound
+  - order: 2
+    source_type: ServiceAccount
+    primitive: ServiceKeyCompromise
+    target_type: Credential
+    required: true
+    confirmed_if_edge_exists: false
+    missing_if_absent:
+      question: Is the service account key or NT hash compromised?
+      relationship: CredentialMaterial
+      target_type: Credential
+      collector: Host
+result:
+  type: ServiceAccessCandidate
+  description: SPN presence alone is incomplete; service key material is required before a Silver Ticket path is confirmed.
+examples:
+  - machine: Vintage
+    chain: Kerberos service context requires credential-material validation
+    confidence: low
+confidence: low
+source_count: 1

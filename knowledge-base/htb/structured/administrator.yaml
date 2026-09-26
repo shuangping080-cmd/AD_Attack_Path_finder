@@ -1,0 +1,135 @@
+machine:
+  name: Administrator
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://0xdf.gitlab.io/2025/04/19/htb-administrator.html
+  author: '0xdf'
+  role: primary
+  trust_level: public_writeup
+- url: https://github.com/BitWiz4rd/HTB-WriteUps/blob/main/Machines/Medium/Administrator/writeup.md
+  author: bitwiz4rd
+  role: supplementary
+  trust_level: public_writeup
+- url: https://github.com/d3nkers/htb-writeup/blob/main/administrator
+  author: d3nkers
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: Administrator domain
+  type: Domain
+- name: SPN-bearing service account
+  type: ServiceAccount
+- name: Administrator
+  type: User
+  properties: &id001
+    high_value: true
+- name: michael
+  type: User
+- name: olivia
+  type: User
+relationships:
+- DCSync
+- GenericAll
+- GenericWrite
+- SPNManipulation
+primitives:
+- DCSync
+- PasswordReset
+- SPNManipulation
+- TargetedKerberoast
+attack_chain:
+- order: 1
+  phase: acl_abuse
+  source:
+    name: olivia
+    type: User
+  relationship: GenericAll
+  target:
+    name: michael
+    type: User
+  primitive: PasswordReset
+  result: BloodHound reveals Olivia has GenericAll over michael, enabling account takeover such as password reset.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions:
+  - GenericAll is current raw edge evidence and password reset or equivalent control succeeds.
+  missing_information:
+  - Confirm exact edge properties and reset method.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/04/19/htb-administrator.html
+    source_role: primary
+- order: 2
+  phase: acl_abuse
+  source:
+    name: michael
+    type: User
+  relationship: GenericWrite
+  target:
+    name: SPN-bearing service account
+    type: ServiceAccount
+  primitive: SPNManipulation
+  result: The next compromised identity has GenericWrite over a service account, enabling targeted Kerberoast style manipulation.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions:
+  - SPN or relevant account attributes are writable.
+  missing_information:
+  - Confirm exact service account and writable attributes.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/04/19/htb-administrator.html
+    source_role: primary
+- order: 3
+  phase: credential_access
+  source:
+    name: SPN-bearing service account
+    type: ServiceAccount
+  relationship: SPNManipulation
+  target:
+    name: SPN-bearing service account
+    type: ServiceAccount
+  primitive: TargetedKerberoast
+  result: Targeted Kerberoast is used as the credential recovery continuation.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - Ticket hash is obtained and cracked.
+  missing_information:
+  - Confirm hash recovery and cracking result.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/04/19/htb-administrator.html
+    source_role: primary
+- order: 4
+  phase: credential_access
+  source:
+    name: Administrator domain
+    type: Domain
+  relationship: DCSync
+  target:
+    name: Administrator
+    type: User
+    properties: *id001
+  primitive: DCSync
+  result: The historical chain reaches DCSync/secretsdump for administrator credential material.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact replication-right grant/path and secretsdump output.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/04/19/htb-administrator.html
+    source_role: primary
+review_status: sanitized_historical_draft

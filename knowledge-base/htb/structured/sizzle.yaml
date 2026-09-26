@@ -1,0 +1,131 @@
+machine:
+  name: Sizzle
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://github.com/Kyuu-Ji/htb-write-up/blob/master/sizzle/write-up-sizzle.md
+  author: kyuu-ji
+  role: primary
+  trust_level: public_writeup
+- url: https://pointedsec.github.io/writeups/sizzle---hackthebox
+  author: pointedsec.github.io
+  role: supplementary
+  trust_level: public_writeup
+- url: https://github.com/Kyuu-Ji/htb-write-up/blob/master/sizzle/write-up-sizzle.md?plain=1
+  author: kyuu-ji
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: client certificate foothold
+  type: CertificateArtifact
+- name: Administrator
+  type: User
+  properties: &id001
+    high_value: true
+- name: amanda
+  type: User
+- name: mrlky
+  type: User
+relationships:
+- BypassAppLocker
+- CertificateAuthentication
+- DCSync
+- Kerberoast
+primitives:
+- CertificateAuthentication
+- DCSync
+- HostExecution
+- Kerberoast
+attack_chain:
+- order: 1
+  phase: credential_access
+  source:
+    name: amanda
+    type: User
+  relationship: CertificateAuthentication
+  target:
+    name: client certificate foothold
+    type: CertificateArtifact
+  primitive: CertificateAuthentication
+  result: A generated Amanda certificate is used for Evil-WinRM foothold in the historical chain.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact certificate generation and mapping method.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/Kyuu-Ji/htb-write-up/blob/master/sizzle/write-up-sizzle.md
+    source_role: primary
+- order: 2
+  phase: host_execution
+  source:
+    name: client certificate foothold
+    type: CertificateArtifact
+  relationship: BypassAppLocker
+  target:
+    name: mrlky
+    type: User
+  primitive: HostExecution
+  result: After foothold, AppLocker bypass and tooling lead to execution context for Kerberoasting/BloodHound.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Record exact bypass and transition to mrlky.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/Kyuu-Ji/htb-write-up/blob/master/sizzle/write-up-sizzle.md
+    source_role: primary
+- order: 3
+  phase: credential_access
+  source:
+    name: mrlky
+    type: User
+  relationship: Kerberoast
+  target:
+    name: mrlky
+    type: User
+  primitive: Kerberoast
+  result: Kerberoasting is used to obtain or strengthen access to mrlky.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact SPN and cracked credential.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/Kyuu-Ji/htb-write-up/blob/master/sizzle/write-up-sizzle.md
+    source_role: primary
+- order: 4
+  phase: credential_access
+  source:
+    name: mrlky
+    type: User
+  relationship: DCSync
+  target:
+    name: Administrator
+    type: User
+    properties: *id001
+  primitive: DCSync
+  result: BloodHound shows mrlky has GetChanges/GetChangesAll style rights sufficient for DCSync.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions:
+  - Replication rights are present and secretsdump succeeds.
+  missing_information:
+  - Confirm exact rights and DCSync output.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/Kyuu-Ji/htb-write-up/blob/master/sizzle/write-up-sizzle.md
+    source_role: primary
+review_status: sanitized_historical_draft

@@ -1,0 +1,176 @@
+machine:
+  name: Certificate
+  source_status: indexed
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://0xdf.gitlab.io/2025/10/04/htb-certificate.html
+  author: '0xdf'
+  role: primary
+  trust_level: public_writeup
+- url: https://bl4ckarch.github.io/posts/HTB-Certificate
+  author: bl4ckarch.github.io
+  role: supplementary
+  trust_level: public_writeup
+- url: https://thecybersecguru.com/ctf-walkthroughs/mastering-certificate-beginners-guide-from-hackthebox
+  author: thecybersecguru.com
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: forged CA certificate
+  type: CertificateArtifact
+- name: Delegated-CRA
+  type: CertificateTemplate
+- name: SeManageVolumePrivilege host context
+  type: HostPrivilege
+- name: domain administrator target
+  type: PrivilegedTarget
+- name: Lion.SK
+  type: User
+relationships:
+- CertificateAuthentication
+- ESC3
+- Enroll
+- ForgeCACertificate
+- KerberosPreauthHash
+- SeManageVolumePrivilege
+primitives:
+- ADCSCertificateAbuse
+- ASREPRoast
+- ESC3
+- GoldenCertificateCandidate
+- LocalPrivilege
+attack_chain:
+- order: 1
+  phase: credential_access
+  source: null
+  relationship: KerberosPreauthHash
+  target:
+    name: Lion.SK
+    type: User
+  primitive: ASREPRoast
+  result: The WP describes extracting Kerberos pre-authentication hashes from PCAP material and recovering a usable identity.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - PCAP contains usable Kerberos material and hash cracking succeeds.
+  missing_information:
+  - Record exact hash source and cracked credential.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/10/04/htb-certificate.html
+    source_role: primary
+- order: 2
+  phase: adcs_enumeration
+  source:
+    name: Lion.SK
+    type: User
+  relationship: Enroll
+  target:
+    name: Delegated-CRA
+    type: CertificateTemplate
+  primitive: ESC3
+  result: Certipy finds the Delegated-CRA template with enrollment-agent related abuse potential.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - Template is enabled and enrollment agent EKU/rights are present.
+  missing_information:
+  - Capture exact template output and enrollment rights.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/10/04/htb-certificate.html
+    source_role: primary
+- order: 3
+  phase: privilege_escalation_candidate
+  source:
+    name: Delegated-CRA
+    type: CertificateTemplate
+  relationship: ESC3
+  target:
+    name: domain administrator target
+    type: PrivilegedTarget
+  primitive: ADCSCertificateAbuse
+  result: ESC3 certificate-template abuse is a candidate route to privileged certificate authentication.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - Enrollment agent request and on-behalf-of flow succeed.
+  missing_information:
+  - Confirm issued certificate and target identity.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/10/04/htb-certificate.html
+    source_role: primary
+- order: 4
+  phase: host_privilege
+  source:
+    name: Lion.SK
+    type: User
+  relationship: SeManageVolumePrivilege
+  target:
+    name: SeManageVolumePrivilege host context
+    type: HostPrivilege
+  primitive: LocalPrivilege
+  result: SeManageVolumePrivilege provides a local privilege context used later for CA certificate forging.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact host, privilege assignment, and local file access.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/10/04/htb-certificate.html
+    source_role: primary
+- order: 5
+  phase: privilege_escalation_candidate
+  source:
+    name: SeManageVolumePrivilege host context
+    type: HostPrivilege
+  relationship: ForgeCACertificate
+  target:
+    name: forged CA certificate
+    type: CertificateArtifact
+  primitive: GoldenCertificateCandidate
+  result: Local host privilege enables forging CA certificate material in the historical chain.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - CA private key or signing material becomes accessible.
+  missing_information:
+  - Confirm CA material access and forged certificate properties.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/10/04/htb-certificate.html
+    source_role: primary
+- order: 6
+  phase: credential_access
+  source:
+    name: forged CA certificate
+    type: CertificateArtifact
+  relationship: CertificateAuthentication
+  target:
+    name: domain administrator target
+    type: PrivilegedTarget
+  primitive: ADCSCertificateAbuse
+  result: Forged certificate material leads to domain administrator authentication in the historical chain.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm authentication result and privilege scope.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/10/04/htb-certificate.html
+    source_role: primary
+review_status: sanitized_historical_draft

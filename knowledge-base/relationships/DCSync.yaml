@@ -1,0 +1,7 @@
+name: DCSync
+description: Source has directory replication permissions over the target domain.
+source_types: [User, Group, ServiceAccount]
+target_types: [Domain]
+direct_control: true
+maps_to_primitives: [DCSync]
+extra_conditions: [Evidence should identify effective replication rights.]

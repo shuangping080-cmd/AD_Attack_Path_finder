@@ -1,0 +1,7 @@
+name: WriteOwner
+description: Effective permission to change ownership of the target object.
+source_types: [User, Group, Computer, ServiceAccount]
+target_types: [User, Group, Computer, Domain, OU, GPO]
+direct_control: false
+maps_to_primitives: [WriteDACLControl]
+extra_conditions: [Ownership change must lead to an effective permission path.]

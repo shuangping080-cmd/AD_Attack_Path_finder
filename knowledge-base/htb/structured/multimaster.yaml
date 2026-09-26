@@ -1,0 +1,125 @@
+machine:
+  name: Multimaster
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://github.com/zweilosec/htb-writeups/blob/master/windows-machines/insane/multimaster.md
+  author: zweilosec
+  role: primary
+  trust_level: public_writeup
+- url: https://github.com/Spy0x7/htb-writeups/blob/master/windows-machines/insane/multimaster.md
+  author: spy0x7
+  role: supplementary
+  trust_level: public_writeup
+- url: https://axcheron.github.io/writeups/htb/multimaster
+  author: axcheron.github.io
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: SQLi-extracted user hashes
+  type: CredentialArtifact
+- name: token abuse host context
+  type: HostPrivilege
+- name: ASREP roastable account
+  type: User
+- name: sprayed domain user
+  type: User
+relationships:
+- ASREPRoastable
+- PasswordSpray
+- SQLInjection
+- TokenAbuse
+primitives:
+- ASREPRoast
+- HashExtraction
+- PasswordSpray
+- TokenImpersonation
+attack_chain:
+- order: 1
+  phase: credential_access
+  source: null
+  relationship: SQLInjection
+  target:
+    name: SQLi-extracted user hashes
+    type: CredentialArtifact
+  primitive: HashExtraction
+  result: SQL injection is used to extract/crack credential hashes.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Record exact SQLi endpoint and cracked accounts.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/zweilosec/htb-writeups/blob/master/windows-machines/insane/multimaster.md
+    source_role: primary
+- order: 2
+  phase: credential_access
+  source:
+    name: SQLi-extracted user hashes
+    type: CredentialArtifact
+  relationship: PasswordSpray
+  target:
+    name: sprayed domain user
+    type: User
+  primitive: PasswordSpray
+  result: Cracked passwords are sprayed against domain users for access.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact sprayed user and service.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/zweilosec/htb-writeups/blob/master/windows-machines/insane/multimaster.md
+    source_role: primary
+- order: 3
+  phase: credential_access
+  source:
+    name: sprayed domain user
+    type: User
+  relationship: ASREPRoastable
+  target:
+    name: ASREP roastable account
+    type: User
+  primitive: ASREPRoast
+  result: The source records AS-REP roast as part of the later domain recon chain.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact ASREP account and cracked result.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/zweilosec/htb-writeups/blob/master/windows-machines/insane/multimaster.md
+    source_role: primary
+- order: 4
+  phase: privilege_escalation_candidate
+  source:
+    name: ASREP roastable account
+    type: User
+  relationship: TokenAbuse
+  target:
+    name: token abuse host context
+    type: HostPrivilege
+  primitive: TokenImpersonation
+  result: Abusing tokens is the candidate local/domain continuation.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Extract exact token privilege and resulting target.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/zweilosec/htb-writeups/blob/master/windows-machines/insane/multimaster.md
+    source_role: primary
+review_status: sanitized_historical_draft

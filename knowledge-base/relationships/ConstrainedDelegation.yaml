@@ -1,0 +1,7 @@
+name: ConstrainedDelegation
+description: Source identity has constrained delegation configuration to target services.
+source_types: [User, Computer, ServiceAccount]
+target_types: [Service, Computer]
+direct_control: false
+maps_to_primitives: [ConstrainedDelegation, S4U]
+extra_conditions: [Allowed services determine impact.]

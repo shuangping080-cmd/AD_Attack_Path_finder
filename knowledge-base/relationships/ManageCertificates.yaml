@@ -1,0 +1,7 @@
+name: ManageCertificates
+description: Source can manage certificate requests or issued certificates.
+source_types: [User, Group]
+target_types: [CertificateAuthority]
+direct_control: false
+maps_to_primitives: [ESC7]
+extra_conditions: [Request workflow and template scope must be known.]

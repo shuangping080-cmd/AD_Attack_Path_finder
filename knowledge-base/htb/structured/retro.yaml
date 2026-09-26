@@ -1,0 +1,148 @@
+machine:
+  name: Retro
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://0xdf.gitlab.io/2025/06/24/htb-retro.html
+  author: '0xdf'
+  role: primary
+  trust_level: public_writeup
+- url: https://0xdf.gitlab.io/2025/07/22/htb-retrotwo.html
+  author: '0xdf'
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: ESC1 vulnerable template
+  type: CertificateTemplate
+- name: old machine account
+  type: Computer
+- name: administrator target
+  type: PrivilegedTarget
+- name: RetroTwo GenericWrite target
+  type: User
+- name: RetroTwo recovered domain user
+  type: User
+- name: trainee account
+  type: User
+relationships:
+- CertificateAuthentication
+- Enroll
+- GenericWrite
+- PasswordEqualsUsername
+- PreWindows2000ComputerPassword
+primitives:
+- ADCSCertificateAbuse
+- ESC1
+- PasswordReset
+- PasswordReuse
+- Pre2KComputerPassword
+attack_chain:
+- order: 1
+  phase: credential_access
+  source: null
+  relationship: PasswordEqualsUsername
+  target:
+    name: trainee account
+    type: User
+  primitive: PasswordReuse
+  result: A trainee account uses username-as-password style credentials.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Record exact account name and password source.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/06/24/htb-retro.html
+    source_role: primary
+- order: 2
+  phase: credential_access
+  source:
+    name: trainee account
+    type: User
+  relationship: PreWindows2000ComputerPassword
+  target:
+    name: old machine account
+    type: Computer
+  primitive: Pre2KComputerPassword
+  result: An old machine account has a Pre-Windows 2000 style password condition.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact machine account and password validation.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/06/24/htb-retro.html
+    source_role: primary
+- order: 3
+  phase: adcs_enumeration
+  source:
+    name: old machine account
+    type: Computer
+  relationship: Enroll
+  target:
+    name: ESC1 vulnerable template
+    type: CertificateTemplate
+  primitive: ESC1
+  result: Certipy/ADCS enumeration identifies an ESC1 path.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Capture exact template flags and enrollment rights.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/06/24/htb-retro.html
+    source_role: primary
+- order: 4
+  phase: credential_access
+  source:
+    name: ESC1 vulnerable template
+    type: CertificateTemplate
+  relationship: CertificateAuthentication
+  target:
+    name: administrator target
+    type: PrivilegedTarget
+  primitive: ADCSCertificateAbuse
+  result: ESC1 certificate abuse is a candidate route to administrator authentication.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm issued cert and authentication result.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/06/24/htb-retro.html
+    source_role: primary
+- order: 5
+  phase: acl_abuse
+  source:
+    name: RetroTwo recovered domain user
+    type: User
+  relationship: GenericWrite
+  target:
+    name: RetroTwo GenericWrite target
+    type: User
+  primitive: PasswordReset
+  result: RetroTwo source records a GenericWrite / password-change style continuation.
+  status: historical_wp_candidate
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Separate RetroTwo chain if needed and confirm exact GenericWrite target.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/06/24/htb-retro.html
+    source_role: primary
+review_status: sanitized_historical_draft

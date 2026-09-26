@@ -1,0 +1,11 @@
+name: ESC4
+category: ADCS
+description: Certificate template control path candidate.
+source_types: [User, Group]
+target_types: [CertificateTemplate]
+required_relationships: [TemplateControl]
+preconditions: []
+results: [CertificateTemplateControlCandidate]
+follow_up_information: [Modified template settings]
+related_primitives: [ESC1]
+observed_examples: []

@@ -1,0 +1,11 @@
+name: WriteSPN
+description: Permission to modify servicePrincipalName on target identity.
+source_types: [User, Group, Computer]
+target_types: [User, ServiceAccount]
+direct_control: false
+maps_to_primitives:
+  - SPNManipulation
+  - TargetedKerberoast
+extra_conditions:
+  - Target identity must permit SPN modification
+  - Credential recovery still depends on offline cracking

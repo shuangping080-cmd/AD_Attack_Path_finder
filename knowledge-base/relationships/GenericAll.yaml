@@ -1,0 +1,7 @@
+name: GenericAll
+description: Broad effective control over the target AD object.
+source_types: [User, Group, Computer, ServiceAccount]
+target_types: [User, Group, Computer, Domain, OU, GPO]
+direct_control: true
+maps_to_primitives: [GenericAllControl, PasswordReset, AddMember, GPOAbuse, RBCD]
+extra_conditions: [Primitive depends on target object type.]

@@ -1,0 +1,15 @@
+name: SPNManipulation
+category: ACL
+description: Candidate primitive where SPN write capability changes Kerberos exposure.
+source_types: [User, Group, Computer]
+target_types: [User, ServiceAccount]
+required_relationships: [WriteSPN, GenericWrite]
+preconditions: [Ability to write SPN on target identity]
+results: [KerberosExposureCandidate]
+follow_up_information: [Targeted Kerberoast viability]
+related_primitives: [TargetedKerberoast]
+observed_examples:
+  - machine: TombWatcher
+    source: HENRY
+    target: ALFRED
+    relationship: WriteSPN

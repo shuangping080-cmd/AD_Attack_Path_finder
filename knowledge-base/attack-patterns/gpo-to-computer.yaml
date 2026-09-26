@@ -1,0 +1,44 @@
+name: GPO To Computer
+description: GPO control can affect linked computers if scope, link, and policy application are confirmed.
+category: GPO
+start_types: [User, Group]
+required_nodes: [GPO, Computer]
+required_relationships: [GenericWrite, GenericAll, LinkedTo]
+required_primitives: [GPOAbuse]
+optional_relationships: [Contains, AdminTo]
+steps:
+  - order: 1
+    source_type: User
+    relationship: GenericWrite
+    target_type: GPO
+    primitive: GPOControl
+    required: true
+    confirmed_if_edge_exists: true
+  - order: 2
+    source_type: GPO
+    relationship: LinkedTo
+    target_type: OU
+    primitive: GPOLinkScope
+    required: true
+    confirmed_if_edge_exists: true
+  - order: 3
+    source_type: OU
+    relationship: Contains
+    target_type: Computer
+    primitive: AffectedComputerScope
+    required: false
+    confirmed_if_edge_exists: true
+    missing_if_absent:
+      question: Which computers are affected by the linked GPO?
+      relationship: Contains
+      target_type: Computer
+      collector: BloodHound
+result:
+  type: PolicyControlCandidate
+  description: GPO control is candidate host impact until link scope and policy application are confirmed.
+examples:
+  - machine: Forest
+    chain: GPO or policy-scope abuse requires linked target validation
+    confidence: low
+confidence: low
+source_count: 1

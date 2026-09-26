@@ -1,0 +1,7 @@
+name: Contains
+description: Source container contains target object.
+source_types: [Domain, OU, Group]
+target_types: [User, Group, Computer, OU, GPO]
+direct_control: false
+maps_to_primitives: []
+extra_conditions: [Control over container does not automatically imply control over child object.]

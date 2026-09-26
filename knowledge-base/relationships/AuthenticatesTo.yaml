@@ -1,0 +1,7 @@
+name: AuthenticatesTo
+description: Identity authenticates to a target service, computer, or application.
+source_types: [User, ServiceAccount, Computer]
+target_types: [Computer, Service, Application]
+direct_control: false
+maps_to_primitives: []
+extra_conditions: [Authentication alone does not imply control.]

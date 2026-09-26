@@ -1,0 +1,11 @@
+name: ESC7
+category: ADCS
+description: CA management path candidate involving certificate manager or officer permissions.
+source_types: [User, Group]
+target_types: [CertificateAuthority]
+required_relationships: [ManageCertificates]
+preconditions: []
+results: [CertificateIssuanceControlCandidate]
+follow_up_information: [Pending request handling]
+related_primitives: []
+observed_examples: []

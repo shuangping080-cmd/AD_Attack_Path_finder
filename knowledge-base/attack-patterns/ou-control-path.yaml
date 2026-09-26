@@ -1,0 +1,37 @@
+name: OU Control Path
+description: OU control can become a path through contained objects or linked policy relationships.
+category: OU
+start_types: [User, Group]
+required_nodes: [OU]
+required_relationships: [GenericAll, GenericWrite, WriteDACL, Contains]
+required_primitives: [OUControl, GPOAbuse]
+optional_relationships: [LinkedTo]
+steps:
+  - order: 1
+    source_type: User
+    relationship: GenericWrite
+    target_type: OU
+    primitive: OUControl
+    required: true
+    confirmed_if_edge_exists: true
+  - order: 2
+    source_type: OU
+    relationship: Contains
+    target_type: Computer
+    primitive: ScopeImpact
+    required: false
+    confirmed_if_edge_exists: true
+    missing_if_absent:
+      question: Which objects are in scope under the controlled OU?
+      relationship: Contains
+      target_type: Computer
+      collector: BloodHound
+result:
+  type: ScopeControlCandidate
+  description: OU control requires contained objects, linked policy, or dMSA evidence before privilege impact is confirmed.
+examples:
+  - machine: Eighteen
+    chain: CreateChild over Staff OU as BadSuccessor setup evidence
+    confidence: medium
+confidence: low
+source_count: 1

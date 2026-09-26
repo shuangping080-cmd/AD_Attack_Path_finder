@@ -1,0 +1,7 @@
+name: TrustedBy
+description: Trust relationship between domains or forests.
+source_types: [Domain, Forest]
+target_types: [Domain, Forest]
+direct_control: false
+maps_to_primitives: []
+extra_conditions: [Trust direction and transitivity must be modeled.]

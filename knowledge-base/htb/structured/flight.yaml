@@ -1,0 +1,151 @@
+machine:
+  name: Flight
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://github.com/Jostif/htb-writeups/blob/main/Flight/README.md
+  author: jostif
+  role: primary
+  trust_level: public_writeup
+- url: https://kar0nx.github.io/writeup/Flight
+  author: kar0nx.github.io
+  role: supplementary
+  trust_level: public_writeup
+- url: https://aest3ra.github.io/posts/HTB-Flight
+  author: aest3ra.github.io
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: web host execution target
+  type: HostPrivilege
+- name: Shared SMB share
+  type: Share
+- name: Web share
+  type: Share
+- name: C.Bum
+  type: User
+- name: S.Moon
+  type: User
+- name: svc_apache
+  type: User
+relationships:
+- NTLMCapture
+- PasswordReuse
+- WebShell
+- WriteShare
+primitives:
+- HostExecution
+- NTLMCapture
+- NetNTLMRelayOrCrack
+- PasswordReuse
+- WebShellUpload
+attack_chain:
+- order: 1
+  phase: credential_access
+  source: null
+  relationship: NTLMCapture
+  target:
+    name: svc_apache
+    type: User
+  primitive: NetNTLMRelayOrCrack
+  result: LFI with a UNC path captures svc_apache NetNTLMv2 material.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm captured hash and cracking result.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/Jostif/htb-writeups/blob/main/Flight/README.md
+    source_role: primary
+- order: 2
+  phase: credential_access
+  source:
+    name: svc_apache
+    type: User
+  relationship: PasswordReuse
+  target:
+    name: S.Moon
+    type: User
+  primitive: PasswordReuse
+  result: Cracked credentials are reused to access S.Moon.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact password reuse result.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/Jostif/htb-writeups/blob/main/Flight/README.md
+    source_role: primary
+- order: 3
+  phase: credential_access
+  source:
+    name: S.Moon
+    type: User
+  relationship: WriteShare
+  target:
+    name: Shared SMB share
+    type: Share
+  primitive: NTLMCapture
+  result: Write access to a shared SMB folder is used with NTLM theft files to capture C.Bum material.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact generated files and captured identity.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/Jostif/htb-writeups/blob/main/Flight/README.md
+    source_role: primary
+- order: 4
+  phase: lateral_movement
+  source:
+    name: C.Bum
+    type: User
+  relationship: WriteShare
+  target:
+    name: Web share
+    type: Share
+  primitive: WebShellUpload
+  result: C.Bum has write access to the Web share, enabling webshell upload.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm upload path and shell result.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/Jostif/htb-writeups/blob/main/Flight/README.md
+    source_role: primary
+- order: 5
+  phase: host_execution
+  source:
+    name: Web share
+    type: Share
+  relationship: WebShell
+  target:
+    name: web host execution target
+    type: HostPrivilege
+  primitive: HostExecution
+  result: The webshell provides reverse shell / host execution as svc_apache.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm process identity and privilege boundary.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/Jostif/htb-writeups/blob/main/Flight/README.md
+    source_role: primary
+review_status: sanitized_historical_draft

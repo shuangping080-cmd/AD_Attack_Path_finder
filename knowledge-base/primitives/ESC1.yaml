@@ -1,0 +1,11 @@
+name: ESC1
+category: ADCS
+description: Certificate template path candidate involving enrollee-supplied subject or equivalent identity mapping risk.
+source_types: [User, Group]
+target_types: [CertificateTemplate]
+required_relationships: [Enroll]
+preconditions: []
+results: [CertificateIdentityCandidate]
+follow_up_information: [Template settings, Enrollment permissions]
+related_primitives: []
+observed_examples: []

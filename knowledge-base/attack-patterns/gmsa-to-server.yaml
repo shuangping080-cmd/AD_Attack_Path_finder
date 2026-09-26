@@ -1,0 +1,37 @@
+name: gMSA To Server
+description: Read access to gMSA password material leads to a service identity whose host impact must be correlated.
+category: ManagedServiceAccount
+start_types: [User, Group]
+required_nodes: [User, gMSA, Computer]
+required_relationships: [ReadGMSAPassword]
+required_primitives: [GMSAPasswordRead]
+optional_relationships: [RunsService, AdminTo, MemberOf]
+steps:
+  - order: 1
+    source_type: User
+    relationship: ReadGMSAPassword
+    target_type: gMSA
+    primitive: GMSAPasswordRead
+    required: true
+    confirmed_if_edge_exists: true
+  - order: 2
+    source_type: gMSA
+    relationship: AdminTo
+    target_type: Computer
+    primitive: GMSAImpact
+    required: false
+    confirmed_if_edge_exists: true
+    missing_if_absent:
+      question: Which hosts does the gMSA administer or run services on?
+      relationship: AdminTo
+      target_type: Computer
+      collector: BloodHound
+result:
+  type: ServiceAccountCredential
+  description: gMSA password read is strong evidence, but host/domain impact depends on downstream relationships.
+examples:
+  - machine: Vintage
+    chain: gMSA password access with downstream host-impact investigation
+    confidence: medium
+confidence: low
+source_count: 1

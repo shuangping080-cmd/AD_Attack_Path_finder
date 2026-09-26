@@ -1,0 +1,11 @@
+name: ESC15
+category: ADCS
+description: Certificate template or issuance behavior candidate requiring writeup-backed evidence.
+source_types: [User, Group]
+target_types: [CertificateTemplate, CertificateAuthority]
+required_relationships: []
+preconditions: []
+results: [CertificateAbuseCandidate]
+follow_up_information: [Exact template or CA setting]
+related_primitives: []
+observed_examples: []

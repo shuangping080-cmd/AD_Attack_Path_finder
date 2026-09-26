@@ -1,0 +1,11 @@
+name: OUControl
+category: GroupPolicy
+description: Control over an OU may influence contained objects or linked policies.
+source_types: [User, Group]
+target_types: [OU]
+required_relationships: [GenericAll, GenericWrite, WriteDACL]
+preconditions: []
+results: [ScopeControlCandidate]
+follow_up_information: [Child objects, GPO links]
+related_primitives: [GPOAbuse]
+observed_examples: []

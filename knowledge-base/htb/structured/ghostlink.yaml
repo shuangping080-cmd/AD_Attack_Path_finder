@@ -1,0 +1,100 @@
+machine:
+  name: Ghostlink
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://github.com/gazsopatrik/Ghostlink_HTB_Writeup
+  author: gazsopatrik
+  role: primary
+  trust_level: public_writeup
+- url: https://github.com/hackthebox/GCSB-2026/blob/main/FullPwn/Ghostlink/Ghostlink.md
+  author: hackthebox
+  role: supplementary
+  trust_level: public_writeup
+- url: https://github.com/gazsopatrik/Ghostlink_HTB_Writeup/blob/main/README.md
+  author: gazsopatrik
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: DCSync/privilege target
+  type: PrivilegedTarget
+- name: MQTT / IIS / AD exposed services
+  type: Service
+- name: NTLM relay target
+  type: Service
+relationships:
+- DCSync
+- NTLMRelay
+- ServiceEnumeration
+primitives:
+- DCSync
+- NTLMRelay
+- ServiceDiscovery
+attack_chain:
+- order: 1
+  phase: enumeration
+  source: null
+  relationship: ServiceEnumeration
+  target:
+    name: MQTT / IIS / AD exposed services
+    type: Service
+  primitive: ServiceDiscovery
+  result: The sources show a domain controller with IIS, WinRM, MQTT, LDAP, Kerberos, and SMB exposed.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: false
+  preconditions: []
+  missing_information:
+  - Record exact service role and initial foothold.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/gazsopatrik/Ghostlink_HTB_Writeup
+    source_role: primary
+- order: 2
+  phase: credential_access_candidate
+  source:
+    name: MQTT / IIS / AD exposed services
+    type: Service
+  relationship: NTLMRelay
+  target:
+    name: NTLM relay target
+    type: Service
+  primitive: NTLMRelay
+  result: Responder/ntlmrelayx-style relay mode appears in the source material.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm coercion source, relay target, and successful LDAP/SMB action.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/gazsopatrik/Ghostlink_HTB_Writeup
+    source_role: primary
+- order: 3
+  phase: privilege_escalation_candidate
+  source:
+    name: NTLM relay target
+    type: Service
+  relationship: DCSync
+  target:
+    name: DCSync/privilege target
+    type: PrivilegedTarget
+  primitive: DCSync
+  result: DCSYNC client support appears in tooling output, but final rights/path need review.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: false
+  preconditions: []
+  missing_information:
+  - Extract exact relayed privilege and whether DCSync succeeds.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://github.com/gazsopatrik/Ghostlink_HTB_Writeup
+    source_role: primary
+review_status: sanitized_historical_draft

@@ -1,0 +1,15 @@
+name: BadSuccessor
+category: dMSA
+description: Candidate path based on dMSA successor relationships and delegated service identity behavior.
+source_types: [User, Group, Computer]
+target_types: [OU, Container, dMSA, ServiceAccount]
+required_relationships: [CreateChild]
+preconditions: [dMSA creation or write path under OU, Successor relationship observed in source material]
+results: [ServiceIdentityTransitionCandidate]
+follow_up_information: [Successor object, Service binding]
+related_primitives: [DMSAAbuse]
+observed_examples:
+  - machine: Eighteen
+    source: IT
+    target: STAFF
+    relationship: CreateChild

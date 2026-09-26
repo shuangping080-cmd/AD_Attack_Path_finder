@@ -1,0 +1,11 @@
+name: GPOAbuse
+category: GroupPolicy
+description: Candidate path where control over GPO or linked scope affects users or computers.
+source_types: [User, Group]
+target_types: [GPO, OU, Computer]
+required_relationships: [GenericWrite, GenericAll, WriteDACL]
+preconditions: [GPO linked to relevant scope]
+results: [PolicyControlCandidate]
+follow_up_information: [Linked OUs, Affected computers]
+related_primitives: [OUControl]
+observed_examples: []

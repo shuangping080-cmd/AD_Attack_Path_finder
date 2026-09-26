@@ -1,0 +1,15 @@
+name: TargetedKerberoast
+category: Kerberos
+description: Candidate path where write access enables SPN manipulation followed by Kerberoast-style credential recovery.
+source_types: [User, Group, Computer]
+target_types: [User, ServiceAccount]
+required_relationships: [WriteSPN, GenericWrite]
+preconditions: [Ability to write SPN or related attributes, Credential recovery still depends on offline cracking]
+results: [CredentialCandidate]
+follow_up_information: [Writable attributes, Password cracked]
+related_primitives: [SPNManipulation, Kerberoast]
+observed_examples:
+  - machine: TombWatcher
+    source: HENRY
+    target: ALFRED
+    relationship: WriteSPN

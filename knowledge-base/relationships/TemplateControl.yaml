@@ -1,0 +1,7 @@
+name: TemplateControl
+description: Source can control or modify a certificate template.
+source_types: [User, Group]
+target_types: [CertificateTemplate]
+direct_control: false
+maps_to_primitives: [ESC4]
+extra_conditions: [Result depends on modified template properties.]

@@ -1,0 +1,37 @@
+name: Delegation To High Privilege
+description: Delegation relationships may become high-privilege paths when a privileged identity, service, or host precondition is present.
+category: Delegation
+start_types: [User, Computer, ServiceAccount]
+required_nodes: [User, Computer, Service]
+required_relationships: [AllowedToDelegate, ConstrainedDelegation, UnconstrainedDelegation]
+required_primitives: [ConstrainedDelegation, UnconstrainedDelegation, S4U]
+optional_relationships: [HasSession, AdminTo]
+steps:
+  - order: 1
+    source_type: User
+    relationship: AllowedToDelegate
+    target_type: Computer
+    primitive: ConstrainedDelegation
+    required: true
+    confirmed_if_edge_exists: true
+  - order: 2
+    source_type: Computer
+    relationship: HasSession
+    target_type: User
+    primitive: CredentialExposure
+    required: false
+    confirmed_if_edge_exists: true
+    missing_if_absent:
+      question: Is a privileged identity exposed through session or service context?
+      relationship: HasSession
+      target_type: User
+      collector: BloodHound
+result:
+  type: DelegatedHighPrivilegeCandidate
+  description: Delegation is not domain compromise without target service and privileged identity context.
+examples:
+  - machine: Intelligence
+    chain: Delegation requires privileged context correlation
+    confidence: low
+confidence: low
+source_count: 1

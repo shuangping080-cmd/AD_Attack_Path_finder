@@ -1,0 +1,20 @@
+name: RBCD
+category: Delegation
+description: Resource-based constrained delegation can create a computer or service impersonation path when prerequisites are met.
+source_types: [Computer, User, ServiceAccount]
+target_types: [Computer]
+required_relationships:
+  - AllowedToAct
+preconditions:
+  - Controlled identity with suitable delegation capability
+  - Target service accepts delegated authentication
+results:
+  - DelegatedAccessCandidate
+follow_up_information:
+  - Service host
+  - SPN
+  - Local admin impact
+related_primitives:
+  - S4U
+  - ComputerIdentityAbuseCandidate
+observed_examples: []

@@ -1,0 +1,9 @@
+entities:
+  - id:
+    name:
+    canonical_name:
+    aliases: []
+    type:
+    domain:
+    properties: {}
+    source:

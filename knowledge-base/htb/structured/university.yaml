@@ -1,0 +1,167 @@
+machine:
+  name: University
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://0xdf.gitlab.io/2025/08/09/htb-university.html
+  author: '0xdf'
+  role: primary
+  trust_level: public_writeup
+entities:
+- name: AllowedToAct target
+  type: Computer
+- name: attacker-created computer
+  type: Computer
+- name: Django/xhtml2pdf exploit path
+  type: ExploitArtifact
+- name: gMSA target
+  type: gMSA
+- name: WPAD / NTLM relay target
+  type: Service
+relationships:
+- AddComputer
+- AllowedToAct
+- CVE-2023-33733
+- ReadGMSAPassword
+- UnconstrainedDelegation
+- mitm6/WPAD
+primitives:
+- CodeExecution
+- ComputerAccountCreation
+- NTLMRelay
+- RBCD
+- ReadGMSAPassword
+- UnconstrainedDelegation
+attack_chain:
+- order: 1
+  phase: initial_access
+  source:
+    name: Django/xhtml2pdf exploit path
+    type: ExploitArtifact
+  relationship: CVE-2023-33733
+  target:
+    name: Django/xhtml2pdf exploit path
+    type: ExploitArtifact
+  primitive: CodeExecution
+  result: The chain starts from Django/xhtml2pdf/reportlab-style exploitation.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact exploit primitive and identity.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/08/09/htb-university.html
+    source_role: primary
+- order: 2
+  phase: relay
+  source:
+    name: Django/xhtml2pdf exploit path
+    type: ExploitArtifact
+  relationship: mitm6/WPAD
+  target:
+    name: WPAD / NTLM relay target
+    type: Service
+  primitive: NTLMRelay
+  result: mitm6/WPAD and ntlmrelayx are used for relay-style AD action.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact relayed account and LDAP action.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/08/09/htb-university.html
+    source_role: primary
+- order: 3
+  phase: delegation
+  source:
+    name: WPAD / NTLM relay target
+    type: Service
+  relationship: AddComputer
+  target:
+    name: attacker-created computer
+    type: Computer
+  primitive: ComputerAccountCreation
+  result: addcomputer creates an attacker-controlled computer account.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact computer and credentials.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/08/09/htb-university.html
+    source_role: primary
+- order: 4
+  phase: delegation
+  source:
+    name: attacker-created computer
+    type: Computer
+  relationship: AllowedToAct
+  target:
+    name: AllowedToAct target
+    type: Computer
+  primitive: RBCD
+  result: RBCD / AllowedToAct is used as a core privilege step.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm msDS-AllowedToAct write.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/08/09/htb-university.html
+    source_role: primary
+- order: 5
+  phase: delegation
+  source:
+    name: AllowedToAct target
+    type: Computer
+  relationship: UnconstrainedDelegation
+  target:
+    name: gMSA target
+    type: gMSA
+  primitive: UnconstrainedDelegation
+  result: Unconstrained delegation / Rubeus monitor appears in the continuation.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact ticket capture and conversion.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/08/09/htb-university.html
+    source_role: primary
+- order: 6
+  phase: credential_access
+  source:
+    name: gMSA target
+    type: gMSA
+  relationship: ReadGMSAPassword
+  target:
+    name: gMSA target
+    type: gMSA
+  primitive: ReadGMSAPassword
+  result: gMSA read is recorded as a later privilege component.
+  status: historical_wp_candidate
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact gMSA and final access.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2025/08/09/htb-university.html
+    source_role: primary
+review_status: sanitized_historical_draft

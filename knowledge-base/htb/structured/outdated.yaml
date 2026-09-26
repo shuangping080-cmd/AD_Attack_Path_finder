@@ -1,0 +1,144 @@
+machine:
+  name: Outdated
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://0xv01d.github.io/hackthebox/outdated
+  author: 0xv01d.github.io
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: Follina lure document
+  type: ExploitArtifact
+- name: administrator target
+  type: PrivilegedTarget
+- name: WSUS privilege context
+  type: Service
+- name: compromised user
+  type: User
+- name: shadow credentials target
+  type: User
+relationships:
+- BloodHoundCollection
+- Follina
+- ShadowCredentials
+- WSUSAbuse
+- WinRM
+primitives:
+- AdminAccess
+- BloodHoundCollection
+- CodeExecution
+- RemoteManagement
+- ShadowCredentials
+attack_chain:
+- order: 1
+  phase: initial_access
+  source:
+    name: Follina lure document
+    type: ExploitArtifact
+  relationship: Follina
+  target:
+    name: compromised user
+    type: User
+  primitive: CodeExecution
+  result: SMB/SMTP delivered Follina content provides initial code execution / user compromise.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact document delivery and callback identity.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xv01d.github.io/hackthebox/outdated
+    source_role: supplementary
+- order: 2
+  phase: enumeration
+  source:
+    name: compromised user
+    type: User
+  relationship: BloodHoundCollection
+  target:
+    name: compromised user
+    type: User
+  primitive: BloodHoundCollection
+  result: BloodHound is used to identify the AD privilege path.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Capture exact BloodHound path.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xv01d.github.io/hackthebox/outdated
+    source_role: supplementary
+- order: 3
+  phase: acl_abuse
+  source:
+    name: compromised user
+    type: User
+  relationship: ShadowCredentials
+  target:
+    name: shadow credentials target
+    type: User
+  primitive: ShadowCredentials
+  result: Shadow Credentials are used as an AD identity takeover step.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact target object and KeyCredentialLink modification.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xv01d.github.io/hackthebox/outdated
+    source_role: supplementary
+- order: 4
+  phase: lateral_movement
+  source:
+    name: shadow credentials target
+    type: User
+  relationship: WinRM
+  target:
+    name: WSUS privilege context
+    type: Service
+  primitive: RemoteManagement
+  result: Recovered identity enables lateral movement toward WSUS-related privilege.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact WinRM result and WSUS role.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xv01d.github.io/hackthebox/outdated
+    source_role: supplementary
+- order: 5
+  phase: privilege_escalation
+  source:
+    name: WSUS privilege context
+    type: Service
+  relationship: WSUSAbuse
+  target:
+    name: administrator target
+    type: PrivilegedTarget
+  primitive: AdminAccess
+  result: WSUS abuse is the candidate route to administrator-level access.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm WSUS attack steps and resulting privileged access.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xv01d.github.io/hackthebox/outdated
+    source_role: supplementary
+review_status: sanitized_historical_draft

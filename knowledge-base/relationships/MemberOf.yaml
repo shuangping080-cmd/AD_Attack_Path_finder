@@ -1,0 +1,7 @@
+name: MemberOf
+description: Source identity is a member of the target group.
+source_types: [User, Group, Computer, ServiceAccount]
+target_types: [Group]
+direct_control: false
+maps_to_primitives: [GroupMembership]
+extra_conditions: [Group privilege and nesting must be evaluated.]

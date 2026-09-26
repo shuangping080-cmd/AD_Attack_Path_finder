@@ -1,0 +1,7 @@
+name: WriteDACL
+description: Effective permission to modify the target object's DACL.
+source_types: [User, Group, Computer, ServiceAccount]
+target_types: [User, Group, Computer, Domain, OU, GPO]
+direct_control: false
+maps_to_primitives: [WriteDACLControl, DCSync, RBCD]
+extra_conditions: [Desired permission change must be modeled separately.]

@@ -1,0 +1,7 @@
+name: ManageCA
+description: Source has CA management permission.
+source_types: [User, Group]
+target_types: [CertificateAuthority]
+direct_control: false
+maps_to_primitives: [ESC6]
+extra_conditions: [CA settings and officer permissions must be correlated.]

@@ -1,0 +1,7 @@
+name: HasSession
+description: User session is present on a computer.
+source_types: [User]
+target_types: [Computer]
+direct_control: false
+maps_to_primitives: [SessionCredentialAccess]
+extra_conditions: [Administrative access or credential exposure path must exist.]

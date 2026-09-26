@@ -1,0 +1,15 @@
+attack_primitives:
+  - name:
+    source:
+    target:
+    required_relationships: []
+    preconditions: []
+    result:
+    observed: false
+    candidate: false
+    confidence: unknown
+    evidence:
+      source_file:
+      section:
+      excerpt:
+      interpretation:

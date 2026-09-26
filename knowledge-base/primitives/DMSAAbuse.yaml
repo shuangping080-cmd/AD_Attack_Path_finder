@@ -1,0 +1,11 @@
+name: DMSAAbuse
+category: CredentialAccess
+description: Candidate abuse path involving delegated managed service account relationships.
+source_types: [User, Group, Computer]
+target_types: [dMSA]
+required_relationships: [ReadDMSAPassword]
+preconditions: []
+results: [ServiceAccountCredentialCandidate]
+follow_up_information: [dMSA host usage, delegated successor behavior]
+related_primitives: [BadSuccessor]
+observed_examples: []

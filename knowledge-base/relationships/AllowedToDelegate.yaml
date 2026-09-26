@@ -1,0 +1,7 @@
+name: AllowedToDelegate
+description: Source is allowed to delegate to target service.
+source_types: [User, Computer, ServiceAccount]
+target_types: [Service, Computer]
+direct_control: false
+maps_to_primitives: [ConstrainedDelegation, S4U]
+extra_conditions: [Delegated services and target access must be evaluated.]

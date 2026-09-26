@@ -1,0 +1,18 @@
+name: OwnershipTakeover
+category: ACL
+description: WriteOwner may allow taking ownership of a target object and then modifying its permissions.
+source_types: [User, Group, Computer, ServiceAccount]
+target_types: [User, Group, Computer, OU, GPO, Domain]
+required_relationships: [WriteOwner]
+preconditions:
+  - Effective permission to change target owner
+results:
+  - OwnershipControlCandidate
+follow_up_information:
+  - Current object owner
+  - DACL protection state
+  - Desired follow-on permission change
+related_primitives:
+  - WriteDACLControl
+  - GenericAllControl
+observed_examples: []

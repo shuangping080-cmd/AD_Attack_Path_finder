@@ -1,0 +1,11 @@
+name: LocalAdmin
+category: Privilege
+description: Identity has or obtains local administrative access to a computer.
+source_types: [User, Group, ServiceAccount]
+target_types: [Computer]
+required_relationships: [AdminTo]
+preconditions: []
+results: [AdministrativeAccess]
+follow_up_information: [Sessions, Stored credentials]
+related_primitives: [SessionCredentialAccess]
+observed_examples: []

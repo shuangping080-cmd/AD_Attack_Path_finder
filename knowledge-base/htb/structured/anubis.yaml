@@ -1,0 +1,109 @@
+machine:
+  name: Anubis
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://0xdf.gitlab.io/2022/01/29/htb-anubis.html
+  author: '0xdf'
+  role: primary
+  trust_level: public_writeup
+- url: https://prathameshadake.github.io/walkthroughs/anubishtb.html
+  author: prathameshadake.github.io
+  role: supplementary
+  trust_level: public_writeup
+- url: https://github.com/flipflopsen/HTB-Writeups/blob/master/Anubis/WRITEUP.md
+  author: flipflopsen
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: Web certificate template
+  type: CertificateTemplate
+- name: webdevelopers
+  type: Group
+- name: Administrator
+  type: User
+  properties: &id001
+    high_value: true
+- name: diegocruz
+  type: User
+relationships:
+- CertificateAuthentication
+- MemberOf
+- TemplateControl
+primitives:
+- ADCSCertificateAbuse
+- ESC4
+- GroupMembership
+attack_chain:
+- order: 1
+  phase: privilege_context
+  source:
+    name: diegocruz
+    type: User
+  relationship: MemberOf
+  target:
+    name: webdevelopers
+    type: Group
+  primitive: GroupMembership
+  result: The current user is in a group with control over the Web certificate template.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: false
+  preconditions: []
+  missing_information:
+  - Confirm exact user and group membership in LDAP/BloodHound.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2022/01/29/htb-anubis.html
+    source_role: primary
+- order: 2
+  phase: adcs_template_control
+  source:
+    name: webdevelopers
+    type: Group
+  relationship: TemplateControl
+  target:
+    name: Web certificate template
+    type: CertificateTemplate
+  primitive: ESC4
+  result: The group has full control over a certificate template and can modify it for authentication abuse.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - Template DACL permits modifying EKU/authentication-relevant settings.
+  missing_information:
+  - Capture exact template permissions and modified fields.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2022/01/29/htb-anubis.html
+    source_role: primary
+- order: 3
+  phase: credential_access
+  source:
+    name: Web certificate template
+    type: CertificateTemplate
+  relationship: CertificateAuthentication
+  target:
+    name: Administrator
+    type: User
+    properties: *id001
+  primitive: ADCSCertificateAbuse
+  result: Template modification enables requesting a certificate usable to authenticate as Administrator.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - Certificate request succeeds and maps to the target identity.
+  missing_information:
+  - Confirm certificate request and authentication output.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2022/01/29/htb-anubis.html
+    source_role: primary
+review_status: sanitized_historical_draft

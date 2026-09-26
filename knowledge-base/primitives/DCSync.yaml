@@ -1,0 +1,11 @@
+name: DCSync
+category: DirectoryReplication
+description: Directory replication privilege path that may expose domain credential material.
+source_types: [User, Group, ServiceAccount]
+target_types: [Domain]
+required_relationships: [DCSync]
+preconditions: [Effective replication permissions]
+results: [DomainCredentialAccess]
+follow_up_information: [Which secrets were recovered]
+related_primitives: [GoldenTicketCandidate]
+observed_examples: []

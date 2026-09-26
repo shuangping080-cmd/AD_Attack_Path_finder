@@ -1,0 +1,147 @@
+machine:
+  name: Authority
+  source_status: indexed
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://0xdf.gitlab.io/2023/12/09/htb-authority.html
+  author: '0xdf'
+  role: primary
+  trust_level: public_writeup
+entities:
+- name: ESC1 vulnerable certificate template
+  type: CertificateTemplate
+- name: attacker-created computer account
+  type: Computer
+- name: Ansible playbook/vault material
+  type: CredentialArtifact
+- name: domain administrator target
+  type: PrivilegedTarget
+- name: recovered domain user
+  type: User
+relationships:
+- Enroll
+- MachineAccountQuota
+- PassTheCert
+- ReadCredentialArtifact
+- SilverTicket
+primitives:
+- ADCSCertificateAbuse
+- ComputerAccountCreation
+- ESC1
+- PasswordRecovery
+- SilverTicketCandidate
+attack_chain:
+- order: 1
+  phase: credential_access
+  source: null
+  relationship: ReadCredentialArtifact
+  target:
+    name: Ansible playbook/vault material
+    type: CredentialArtifact
+  primitive: PasswordRecovery
+  result: Open SMB shares expose Ansible material that can be cracked/decrypted into domain credentials.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - Readable playbook/vault data exists and vault material is crackable.
+  missing_information:
+  - Record exact file path, vault item, and recovered identity.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2023/12/09/htb-authority.html
+    source_role: primary
+- order: 2
+  phase: adcs_enumeration
+  source:
+    name: recovered domain user
+    type: User
+  relationship: Enroll
+  target:
+    name: ESC1 vulnerable certificate template
+    type: CertificateTemplate
+  primitive: ESC1
+  result: Certipy identifies an ESC1-style vulnerable template usable by the recovered identity.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - Template permits client authentication and enrollee-supplied subject/SAN.
+  missing_information:
+  - Capture exact template flags, EKUs, enrollment rights, and CA name.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2023/12/09/htb-authority.html
+    source_role: primary
+- order: 3
+  phase: privilege_escalation_candidate
+  source:
+    name: recovered domain user
+    type: User
+  relationship: MachineAccountQuota
+  target:
+    name: attacker-created computer account
+    type: Computer
+  primitive: ComputerAccountCreation
+  result: MachineAccountQuota/addcomputer is used as part of the certificate abuse setup.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - MachineAccountQuota permits creating a computer account.
+  missing_information:
+  - Confirm exact computer object and resulting SPN/SID behavior.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2023/12/09/htb-authority.html
+    source_role: primary
+- order: 4
+  phase: credential_access
+  source:
+    name: ESC1 vulnerable certificate template
+    type: CertificateTemplate
+  relationship: PassTheCert
+  target:
+    name: domain administrator target
+    type: PrivilegedTarget
+  primitive: ADCSCertificateAbuse
+  result: Pass-the-Cert turns the issued certificate into privileged LDAP/Kerberos action capability.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - Certificate request succeeds for the intended identity.
+  missing_information:
+  - Confirm issued certificate identity and pass-the-cert command output.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2023/12/09/htb-authority.html
+    source_role: primary
+- order: 5
+  phase: privilege_escalation_candidate
+  source:
+    name: attacker-created computer account
+    type: Computer
+  relationship: SilverTicket
+  target:
+    name: domain administrator target
+    type: PrivilegedTarget
+  primitive: SilverTicketCandidate
+  result: The historical chain continues into a silver-ticket style domain privilege candidate.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - Required service keys/identity material are available.
+  missing_information:
+  - Confirm exact service, ticket material, and resulting privileged access.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2023/12/09/htb-authority.html
+    source_role: primary
+review_status: sanitized_historical_draft

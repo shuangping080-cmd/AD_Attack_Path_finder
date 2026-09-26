@@ -1,0 +1,11 @@
+name: ESC11
+category: ADCS
+description: Certificate enrollment RPC relay exposure candidate.
+source_types: [Computer, User]
+target_types: [CertificateAuthority]
+required_relationships: []
+preconditions: [Relayable RPC enrollment path]
+results: [CertificateIdentityCandidate]
+follow_up_information: [CA endpoint details]
+related_primitives: []
+observed_examples: []

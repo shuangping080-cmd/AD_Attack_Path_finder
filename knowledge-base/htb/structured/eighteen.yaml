@@ -1,0 +1,126 @@
+machine:
+  name: Eighteen
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://0xdf.gitlab.io/2026/04/11/htb-eighteen.html
+  author: '0xdf'
+  role: primary
+  trust_level: public_writeup
+entities:
+- name: attacker-created dMSA
+  type: dMSA
+- name: IT
+  type: Group
+- name: OU=Staff
+  type: OU
+- name: adam.scott
+  type: User
+- name: Administrator
+  type: User
+  properties: &id001
+    high_value: true
+relationships:
+- BadSuccessor
+- CreateChild
+- MemberOf
+primitives:
+- BadSuccessor
+- DMSAAbuse
+- GroupMembership
+- OUControl
+attack_chain:
+- order: 1
+  phase: starting_context
+  source:
+    name: adam.scott
+    type: User
+  relationship: MemberOf
+  target:
+    name: IT
+    type: Group
+  primitive: GroupMembership
+  result: The starting user inherits rights through IT group membership.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: false
+  preconditions: []
+  missing_information:
+  - Confirm current BloodHound graph contains adam.scott -> IT membership.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2026/04/11/htb-eighteen.html
+    source_role: primary
+- order: 2
+  phase: privilege_escalation_candidate
+  source:
+    name: IT
+    type: Group
+  relationship: CreateChild
+  target:
+    name: OU=Staff
+    type: OU
+  primitive: OUControl
+  result: IT group has CreateChild-style control on OU=Staff, creating the setup condition for dMSA abuse.
+  status: historical_wp
+  bloodhound_visible: true
+  external_action_required: false
+  preconditions:
+  - Effective ACL allows creating the relevant dMSA object class under the OU.
+  missing_information:
+  - Confirm exact ACE and object class scope with LDAP/BloodHound.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2026/04/11/htb-eighteen.html
+    source_role: primary
+- order: 3
+  phase: privilege_escalation_candidate
+  source:
+    name: OU=Staff
+    type: OU
+  relationship: CreateChild
+  target:
+    name: attacker-created dMSA
+    type: dMSA
+  primitive: BadSuccessor
+  result: A dMSA can be created or modified under the controlled OU as a BadSuccessor candidate.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - Domain supports dMSA; msDS-ManagedAccountPrecededByLink can be set to the target.
+  missing_information:
+  - Confirm dMSA creation, predecessor/successor link, and current domain functional behavior.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2026/04/11/htb-eighteen.html
+    source_role: primary
+- order: 4
+  phase: privilege_escalation_candidate
+  source:
+    name: attacker-created dMSA
+    type: dMSA
+  relationship: BadSuccessor
+  target:
+    name: Administrator
+    type: User
+    properties: *id001
+  primitive: DMSAAbuse
+  result: BadSuccessor-style dMSA abuse can lead to Administrator-equivalent credential material if validated.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - Kerberos accepts the successor relationship and issues usable credential material.
+  missing_information:
+  - Confirm ticket request outcome and whether DCSync/domain compromise follows.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2026/04/11/htb-eighteen.html
+    source_role: primary
+review_status: sanitized_historical_draft

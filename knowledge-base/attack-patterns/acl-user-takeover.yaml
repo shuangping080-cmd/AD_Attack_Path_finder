@@ -1,0 +1,42 @@
+name: ACL User Takeover
+description: ACL control over a user identity leads to candidate or confirmed identity control.
+category: ACL
+start_types: [User, Group, Computer]
+required_nodes: [User]
+required_relationships: [GenericAll, GenericWrite, ForceChangePassword, WriteDACL]
+required_primitives: [GenericAllControl, GenericWriteToUser, PasswordReset, ShadowCredentials]
+optional_relationships: [MemberOf, HasSPN]
+steps:
+  - order: 1
+    source_type: User
+    relationship: GenericWrite
+    target_type: User
+    primitive: GenericWriteToUser
+    required: true
+    confirmed_if_edge_exists: true
+    missing_if_absent:
+      question: Which user-control ACL exists?
+      relationship: GenericWrite
+      target_type: User
+      collector: BloodHound
+  - order: 2
+    source_type: User
+    relationship: MemberOf
+    target_type: Group
+    primitive: GroupPrivilegeImpact
+    required: false
+    confirmed_if_edge_exists: true
+    missing_if_absent:
+      question: What downstream group memberships or SPNs make the controlled user valuable?
+      relationship: MemberOf
+      target_type: Group
+      collector: BloodHound
+result:
+  type: ControlOfIdentityCandidate
+  description: ACL control can lead to identity control, but downstream privilege must be proven separately.
+examples:
+  - machine: TombWatcher
+    chain: WriteSPN over user identity leading to targeted Kerberoast candidate
+    confidence: medium
+confidence: low
+source_count: 1

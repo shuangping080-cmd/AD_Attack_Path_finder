@@ -1,0 +1,99 @@
+machine:
+  name: Active
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://0xdf.gitlab.io/2018/12/08/htb-active.html
+  author: '0xdf'
+  role: primary
+  trust_level: public_writeup
+entities:
+- name: Group Policy Preferences cpassword
+  type: CredentialArtifact
+- name: SPN-bearing service account
+  type: ServiceAccount
+- name: Administrator
+  type: User
+  properties: &id001
+    high_value: true
+- name: recovered domain user
+  type: User
+relationships:
+- CredentialReuse
+- GPPPassword
+- HasSPN
+primitives:
+- AdminAccess
+- Kerberoast
+- PasswordRecovery
+attack_chain:
+- order: 1
+  phase: credential_access
+  source: null
+  relationship: GPPPassword
+  target:
+    name: Group Policy Preferences cpassword
+    type: CredentialArtifact
+  primitive: PasswordRecovery
+  result: Readable SYSVOL/GPP data exposes an encrypted cpassword that can be decrypted offline.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - GPP cpassword artifact exists and is readable.
+  missing_information:
+  - Record exact XML path and recovered account.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2018/12/08/htb-active.html
+    source_role: primary
+- order: 2
+  phase: credential_access
+  source:
+    name: recovered domain user
+    type: User
+  relationship: HasSPN
+  target:
+    name: SPN-bearing service account
+    type: ServiceAccount
+  primitive: Kerberoast
+  result: Recovered domain credentials allow Kerberoasting an SPN-bearing account.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions:
+  - SPN account has crackable service ticket material.
+  missing_information:
+  - Confirm exact SPN account and cracked password.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2018/12/08/htb-active.html
+    source_role: primary
+- order: 3
+  phase: privilege_escalation
+  source:
+    name: SPN-bearing service account
+    type: ServiceAccount
+  relationship: CredentialReuse
+  target:
+    name: Administrator
+    type: User
+    properties: *id001
+  primitive: AdminAccess
+  result: Cracked service account credentials lead to administrator-level access in the historical chain.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Normalize exact privilege boundary and host/domain admin status.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2018/12/08/htb-active.html
+    source_role: primary
+review_status: sanitized_historical_draft

@@ -1,0 +1,7 @@
+name: AdminTo
+description: Source identity has administrative access to target computer.
+source_types: [User, Group, ServiceAccount]
+target_types: [Computer]
+direct_control: true
+maps_to_primitives: [LocalAdmin, SessionCredentialAccess]
+extra_conditions: [Session and credential exposure require separate evidence.]

@@ -1,0 +1,7 @@
+name: DomainTrust
+description: Domain-level trust relationship.
+source_types: [Domain]
+target_types: [Domain]
+direct_control: false
+maps_to_primitives: []
+extra_conditions: [Trust direction and authentication restrictions matter.]

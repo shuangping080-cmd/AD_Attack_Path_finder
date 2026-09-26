@@ -1,0 +1,115 @@
+machine:
+  name: Search
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://enilmalus.github.io/posts/htb-search-writeup
+  author: enilmalus.github.io
+  role: supplementary
+  trust_level: public_writeup
+entities:
+- name: staff web/powershell environment
+  type: Application
+- name: BloodHound graph
+  type: GraphEvidence
+- name: sierra.frye
+  type: User
+relationships:
+- BloodHoundCollection
+- PasswordSpray
+- UnknownACLPath
+- WebLogin
+primitives:
+- ApplicationAccess
+- BloodHoundCollection
+- CandidatePath
+- PasswordSpray
+attack_chain:
+- order: 1
+  phase: credential_access
+  source: null
+  relationship: PasswordSpray
+  target:
+    name: sierra.frye
+    type: User
+  primitive: PasswordSpray
+  result: Password spraying recovers usable credentials for sierra.frye.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Record exact source of username list and sprayed password.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://enilmalus.github.io/posts/htb-search-writeup
+    source_role: supplementary
+- order: 2
+  phase: lateral_movement
+  source:
+    name: sierra.frye
+    type: User
+  relationship: WebLogin
+  target:
+    name: staff web/powershell environment
+    type: Application
+  primitive: ApplicationAccess
+  result: Recovered credentials provide access to the staff web area and a PowerShell environment.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact web login and shell context.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://enilmalus.github.io/posts/htb-search-writeup
+    source_role: supplementary
+- order: 3
+  phase: enumeration
+  source:
+    name: sierra.frye
+    type: User
+  relationship: BloodHoundCollection
+  target:
+    name: BloodHound graph
+    type: GraphEvidence
+  primitive: BloodHoundCollection
+  result: The compromised identity is used to collect BloodHound data for path discovery.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Normalize the resulting BloodHound path from the WP.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://enilmalus.github.io/posts/htb-search-writeup
+    source_role: supplementary
+- order: 4
+  phase: privilege_escalation_candidate
+  source:
+    name: BloodHound graph
+    type: GraphEvidence
+  relationship: UnknownACLPath
+  target:
+    name: BloodHound graph
+    type: GraphEvidence
+  primitive: CandidatePath
+  result: The current local source needs further review to extract the final AD privilege chain.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: false
+  preconditions: []
+  missing_information:
+  - Review full WP around BloodHound output and extract exact relationship chain.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://enilmalus.github.io/posts/htb-search-writeup
+    source_role: supplementary
+review_status: sanitized_historical_draft

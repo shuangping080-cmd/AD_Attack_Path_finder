@@ -1,0 +1,7 @@
+name: RunsService
+description: Identity or computer runs a service.
+source_types: [User, ServiceAccount, Computer]
+target_types: [Service, Computer]
+direct_control: false
+maps_to_primitives: [SilverTicketCandidate]
+extra_conditions: [Service host and credential material must be known.]

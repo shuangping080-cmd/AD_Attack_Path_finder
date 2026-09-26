@@ -1,0 +1,144 @@
+machine:
+  name: StreamIO
+  source_status: domain_extracted
+  environment: ActiveDirectory
+public_safety:
+  contains_raw_writeup_text: false
+  contains_bloodhound_raw_data: false
+  contains_private_sqlite_data: false
+  evidence_boundary: historical examples only; never current confirmed evidence
+sources:
+- url: https://0xdf.gitlab.io/2022/09/17/htb-streamio.html
+  author: '0xdf'
+  role: primary
+  trust_level: public_writeup
+entities:
+- name: StreamIO web application
+  type: Application
+- name: LAPS-managed local admin material
+  type: CredentialArtifact
+- name: administrator target
+  type: PrivilegedTarget
+- name: MSSQL backend
+  type: Service
+- name: recovered domain user
+  type: User
+relationships:
+- BloodHoundCollection
+- CredentialReuse
+- MSSQLCommandExecution
+- ReadLAPS
+- SQLInjection
+primitives:
+- AdminAccess
+- BloodHoundCollection
+- CredentialExposure
+- HostExecution
+- ServiceAccess
+attack_chain:
+- order: 1
+  phase: initial_access
+  source:
+    name: StreamIO web application
+    type: Application
+  relationship: SQLInjection
+  target:
+    name: MSSQL backend
+    type: Service
+  primitive: ServiceAccess
+  result: SQL injection provides website/admin or backend MSSQL access.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Record exact SQLi endpoint and DB access level.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2022/09/17/htb-streamio.html
+    source_role: primary
+- order: 2
+  phase: host_execution
+  source:
+    name: MSSQL backend
+    type: Service
+  relationship: MSSQLCommandExecution
+  target:
+    name: recovered domain user
+    type: User
+  primitive: HostExecution
+  result: MSSQL command execution and web/LFI/RFI paths lead to host execution and credential recovery.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact command execution method and identity.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2022/09/17/htb-streamio.html
+    source_role: primary
+- order: 3
+  phase: enumeration
+  source:
+    name: recovered domain user
+    type: User
+  relationship: BloodHoundCollection
+  target:
+    name: recovered domain user
+    type: User
+  primitive: BloodHoundCollection
+  result: BloodHound collection is used after domain credential recovery.
+  status: historical_wp
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Capture exact BloodHound path.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2022/09/17/htb-streamio.html
+    source_role: primary
+- order: 4
+  phase: credential_access
+  source:
+    name: recovered domain user
+    type: User
+  relationship: ReadLAPS
+  target:
+    name: LAPS-managed local admin material
+    type: CredentialArtifact
+  primitive: CredentialExposure
+  result: LAPS material is part of the historical privilege path.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm exact computer/object and LAPS read rights.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2022/09/17/htb-streamio.html
+    source_role: primary
+- order: 5
+  phase: privilege_escalation
+  source:
+    name: LAPS-managed local admin material
+    type: CredentialArtifact
+  relationship: CredentialReuse
+  target:
+    name: administrator target
+    type: PrivilegedTarget
+  primitive: AdminAccess
+  result: Recovered LAPS/local-admin material is a candidate route to administrator-level access.
+  status: historical_wp_candidate
+  bloodhound_visible: false
+  external_action_required: true
+  preconditions: []
+  missing_information:
+  - Confirm target host and final admin scope.
+  evidence:
+    boundary: historical_writeup_reference
+    source_url: https://0xdf.gitlab.io/2022/09/17/htb-streamio.html
+    source_role: primary
+review_status: sanitized_historical_draft
